@@ -1,0 +1,661 @@
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "slug": "mayow-park",
+    "name": "Mayow Park",
+    "lat": 51.4295658,
+    "lng": -0.0510763,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 2,
+    "equipmentVarietyRating": 4,
+    "nearestTrainStation": "Sydenham",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "mayow-park/1.jpg",
+      "mayow-park/2.jpg",
+      "mayow-park/3.jpg",
+      "mayow-park/4.jpg",
+      "mayow-park/5.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000002",
+    "slug": "beckenham-place-park",
+    "name": "Beckenham Place Park",
+    "lat": 51.4224753,
+    "lng": -0.0085063,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 5,
+    "equipmentVarietyRating": 3,
+    "nearestTrainStation": "Beckenham Hill",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars"
+    ],
+    "images": [
+      "beckenham-place-park/1.jpg",
+      "beckenham-place-park/2.jpg",
+      "beckenham-place-park/3.jpg",
+      "beckenham-place-park/4.jpg",
+      "beckenham-place-park/5.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000003",
+    "slug": "betts-park",
+    "name": "Betts Park",
+    "lat": 51.4099269,
+    "lng": -0.0643355,
+    "surfaceType": "Concrete",
+    "equipmentQualityRating": 3,
+    "equipmentVarietyRating": 1,
+    "nearestTrainStation": "Anerley",
+    "equipment": [
+      "pullUpBars"
+    ],
+    "images": [
+      "betts-park/1.jpg",
+      "betts-park/2.jpg",
+      "betts-park/3.jpg",
+      "betts-park/4.jpg",
+      "betts-park/5.jpg",
+      "betts-park/6.jpg",
+      "betts-park/7.jpg",
+      "betts-park/8.jpg",
+      "betts-park/9.jpg",
+      "betts-park/10.jpg"
+    ],
+  "sponsoredPT": {
+    "name": "CaliSpot",
+    "instagram": "calispotapp",
+    "tiktok": "calispotapp",
+    "bio": "Discover London's best CaliSpots"
+  },
+  "workoutGroup": {
+    "name": "Saturday Cali Crew",
+    "dayTime": "Sat 11:00",
+    "level": "Beginner–Intermediate",
+    "contact": "https://chat.whatsapp.com/EXAMPLE123",
+    "notes": "Meet by the pull-up bars. Warm-up together."
+  }
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000004",
+    "slug": "latchmere-recreation-ground",
+    "name": "Latchmere Recreation Ground",
+    "lat": 51.471804,
+    "lng": -0.1615075,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 4,
+    "equipmentVarietyRating": 5,
+    "nearestTrainStation": "Clapham Junction, Queenstown Road",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "latchmere-recreation-ground/1.jpg",
+      "latchmere-recreation-ground/2.jpg",
+      "latchmere-recreation-ground/3.jpg",
+      "latchmere-recreation-ground/4.jpg",
+      "latchmere-recreation-ground/5.jpg",
+      "latchmere-recreation-ground/6.jpg",
+      "latchmere-recreation-ground/7.jpg",
+      "latchmere-recreation-ground/8.jpg",
+      "latchmere-recreation-ground/9.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000005",
+    "slug": "burgess-park",
+    "name": "Burgess Park",
+    "lat": 51.4826601,
+    "lng": -0.0898027,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 5,
+    "equipmentVarietyRating": 5,
+    "nearestTrainStation": "Kennington, Elephant & Castle",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "burgess-park/1.jpg",
+      "burgess-park/2.jpg",
+      "burgess-park/3.jpg",
+      "burgess-park/4.jpg",
+      "burgess-park/5.jpg",
+      "burgess-park/6.jpg",
+      "burgess-park/7.jpg",
+      "burgess-park/8.jpg",
+      "burgess-park/9.jpg",
+      "burgess-park/10.jpg",
+      "burgess-park/11.jpg",
+      "burgess-park/12.jpg",
+      "burgess-park/13.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000006",
+    "slug": "kennington-park",
+    "name": "Kennington Park",
+    "lat": 51.4842839,
+    "lng": -0.1071097,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 2,
+    "equipmentVarietyRating": 4,
+    "nearestTrainStation": "Kennington, Oval",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "abs"
+    ],
+    "images": [
+      "kennington-park/1.jpg",
+      "kennington-park/2.jpg",
+      "kennington-park/3.jpg",
+      "kennington-park/4.jpg",
+      "kennington-park/5.jpg",
+      "kennington-park/6.jpg",
+      "kennington-park/7.jpg",
+      "kennington-park/8.jpg",
+      "kennington-park/9.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000007",
+    "slug": "slade-gardens",
+    "name": "Slade Gardens",
+    "lat": 51.4710428,
+    "lng": -0.1156092,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 4,
+    "equipmentVarietyRating": 4,
+    "nearestTrainStation": "Stockwell, Brixton",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars"
+    ],
+    "images": [
+      "slade-gardens/1.jpg",
+      "slade-gardens/2.jpg",
+      "slade-gardens/3.jpg",
+      "slade-gardens/4.jpg",
+      "slade-gardens/5.jpg",
+      "slade-gardens/6.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000008",
+    "slug": "serenaders-road",
+    "name": "Serenaders Road",
+    "lat": 51.4685802,
+    "lng": -0.1106234,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 3,
+    "equipmentVarietyRating": 2,
+    "nearestTrainStation": "Stockwell, Brixton",
+    "equipment": [
+      "pullUpBars",
+      "dipBars"
+    ],
+    "images": [
+      "serenaders-road/1.jpg",
+      "serenaders-road/2.jpg",
+      "serenaders-road/3.jpg",
+      "serenaders-road/4.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000009",
+    "slug": "ashburton-park",
+    "name": "Ashburton Park",
+    "lat": 51.3864743,
+    "lng": -0.0637276,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 2,
+    "equipmentVarietyRating": 3,
+    "nearestTrainStation": "Woodside, Blackhorse Lane",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "abs"
+    ],
+    "images": [
+      "ashburton-park/1.jpg",
+      "ashburton-park/2.jpg",
+      "ashburton-park/3.jpg",
+      "ashburton-park/4.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000010",
+    "slug": "thessaly-road",
+    "name": "Thessaly Road",
+    "lat": 51.478606,
+    "lng": -0.1408646,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 2,
+    "equipmentVarietyRating": 0,
+    "nearestTrainStation": "Battersea Power Station",
+    "equipment": [],
+    "images": [
+      "thessaly-road/1.jpg",
+      "thessaly-road/2.jpg",
+      "thessaly-road/3.jpg",
+      "thessaly-road/4.jpg",
+      "thessaly-road/5.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000011",
+    "slug": "larkhall-park",
+    "name": "Larkhall Park",
+    "lat": 51.4726576,
+    "lng": -0.1312331,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 3,
+    "equipmentVarietyRating": 2,
+    "nearestTrainStation": "Wandsworth Road, Nine Elms, Stockwell",
+    "equipment": [
+      "pullUpBars",
+      "abs"
+    ],
+    "images": [
+      "larkhall-park/1.jpg",
+      "larkhall-park/2.jpg",
+      "larkhall-park/3.jpg",
+      "larkhall-park/4.jpg",
+      "larkhall-park/5.jpg",
+      "larkhall-park/6.jpg",
+      "larkhall-park/7.jpg",
+      "larkhall-park/8.jpg",
+      "larkhall-park/9.jpg",
+      "larkhall-park/10.jpg",
+      "larkhall-park/11.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000012",
+    "slug": "clapham-common",
+    "name": "Clapham Common",
+    "lat": 51.4608589,
+    "lng": -0.1538743,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 4,
+    "equipmentVarietyRating": 3,
+    "nearestTrainStation": "Clapham Common, Clapham Junction",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "lowBars"
+    ],
+    "images": [
+      "clapham-common/1.jpg",
+      "clapham-common/2.jpg",
+      "clapham-common/3.jpg",
+      "clapham-common/4.jpg",
+      "clapham-common/5.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000013",
+    "slug": "king-georges-field",
+    "name": "King George’s Field",
+    "lat": 51.38727,
+    "lng": -0.0903023,
+    "surfaceType": "Concrete",
+    "equipmentQualityRating": 3,
+    "equipmentVarietyRating": 4,
+    "nearestTrainStation": "Selhurst",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "abs"
+    ],
+    "images": [
+      "king-georges-field/1.jpg",
+      "king-georges-field/2.jpg",
+      "king-georges-field/3.jpg",
+      "king-georges-field/4.jpg",
+      "king-georges-field/5.jpg",
+      "king-georges-field/6.jpg",
+      "king-georges-field/7.jpg",
+      "king-georges-field/8.jpg",
+      "king-georges-field/9.jpg",
+      "king-georges-field/10.jpg",
+      "king-georges-field/11.jpg",
+      "king-georges-field/12.jpg",
+      "king-georges-field/13.jpg",
+      "king-georges-field/14.jpg",
+      "king-georges-field/15.jpg",
+      "king-georges-field/16.jpg",
+      "king-georges-field/17.jpg",
+      "king-georges-field/18.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000014",
+    "slug": "south-norwood-recreation-ground",
+    "name": "South Norwood Recreation Ground",
+    "lat": 51.3952113,
+    "lng": -0.0770394,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 1,
+    "equipmentVarietyRating": 5,
+    "nearestTrainStation": "Norwood Junction",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "south-norwood-recreation-ground/1.jpg",
+      "south-norwood-recreation-ground/2.jpg",
+      "south-norwood-recreation-ground/3.jpg",
+      "south-norwood-recreation-ground/4.jpg",
+      "south-norwood-recreation-ground/5.jpg",
+      "south-norwood-recreation-ground/6.jpg",
+      "south-norwood-recreation-ground/7.jpg",
+      "south-norwood-recreation-ground/8.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000015",
+    "slug": "figges-marsh",
+    "name": "Figges Marsh",
+    "lat": 51.4129025,
+    "lng": -0.1608095,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 5,
+    "equipmentVarietyRating": 3,
+    "nearestTrainStation": "Mitcham Eastfields, Tooting",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "abs"
+    ],
+    "images": [
+      "figges-marsh/1.jpg",
+      "figges-marsh/2.jpg",
+      "figges-marsh/3.jpg",
+      "figges-marsh/4.jpg",
+      "figges-marsh/5.jpg",
+      "figges-marsh/6.jpg",
+      "figges-marsh/7.jpg",
+      "figges-marsh/8.jpg",
+      "figges-marsh/9.jpg",
+      "figges-marsh/10.jpg",
+      "figges-marsh/11.jpg",
+      "figges-marsh/12.jpg",
+      "figges-marsh/13.jpg",
+      "figges-marsh/14.jpg",
+      "figges-marsh/15.jpg",
+      "figges-marsh/16.jpg",
+      "figges-marsh/17.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000016",
+    "slug": "peckham-rye",
+    "name": "Peckham Rye",
+    "lat": 51.4581046,
+    "lng": -0.0578817,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 4,
+    "equipmentVarietyRating": 5,
+    "nearestTrainStation": "Nunhead, Honor Oak Park",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "peckham-rye/1.jpg",
+      "peckham-rye/2.jpg",
+      "peckham-rye/3.jpg",
+      "peckham-rye/4.jpg",
+      "peckham-rye/5.jpg",
+      "peckham-rye/6.jpg",
+      "peckham-rye/7.jpg",
+      "peckham-rye/8.jpg",
+      "peckham-rye/9.jpg",
+      "peckham-rye/10.jpg",
+      "peckham-rye/11.jpg",
+      "peckham-rye/12.jpg",
+      "peckham-rye/13.jpg",
+      "peckham-rye/14.jpg",
+      "peckham-rye/15.jpg",
+      "peckham-rye/16.jpg",
+      "peckham-rye/17.jpg",
+      "peckham-rye/18.jpg",
+      "peckham-rye/19.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000017",
+    "slug": "southwark-park",
+    "name": "Southwark Park",
+    "lat": 51.4941728,
+    "lng": -0.0512446,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 1,
+    "equipmentVarietyRating": 1,
+    "nearestTrainStation": "Surrey Quays",
+    "equipment": [
+      "dipBars"
+    ],
+    "images": [
+      "southwark-park/1.jpg",
+      "southwark-park/2.jpg",
+      "southwark-park/3.jpg",
+      "southwark-park/4.jpg",
+      "southwark-park/5.jpg",
+      "southwark-park/6.jpg",
+      "southwark-park/7.jpg",
+      "southwark-park/8.jpg",
+      "southwark-park/9.jpg",
+      "southwark-park/10.jpg",
+      "southwark-park/11.jpg",
+      "southwark-park/12.jpg",
+      "southwark-park/13.jpg",
+      "southwark-park/14.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000018",
+    "slug": "ruskin-park",
+    "name": "Ruskin Park",
+    "lat": 51.4652551,
+    "lng": -0.0947822,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 5,
+    "equipmentVarietyRating": 5,
+    "nearestTrainStation": "Denmark Hill, Loughborough Junction",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "ruskin-park/1.jpg",
+      "ruskin-park/2.jpg",
+      "ruskin-park/3.jpg",
+      "ruskin-park/4.jpg",
+      "ruskin-park/5.jpg",
+      "ruskin-park/6.jpg",
+      "ruskin-park/7.jpg",
+      "ruskin-park/8.jpg",
+      "ruskin-park/9.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000019",
+    "slug": "brockwell-park",
+    "name": "Brockwell Park",
+    "lat": 51.4518351,
+    "lng": -0.1085239,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 4,
+    "equipmentVarietyRating": 1,
+    "nearestTrainStation": "Herne Hill",
+    "equipment": [
+      "pullUpBars"
+    ],
+    "images": [
+      "brockwell-park/1.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000020",
+    "slug": "clapham-common-west",
+    "name": "Clapham Common West",
+    "lat": 51.4608031,
+    "lng": -0.1592223,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 3,
+    "equipmentVarietyRating": 1,
+    "nearestTrainStation": "Clapham Junction, Clapham Common",
+    "equipment": [
+      "pullUpBars"
+    ],
+    "images": [
+      "clapham-common-west/1.jpg",
+      "clapham-common-west/2.jpg",
+      "clapham-common-west/3.jpg",
+      "clapham-common-west/4.jpg",
+      "clapham-common-west/5.jpg",
+      "clapham-common-west/6.jpg",
+      "clapham-common-west/7.jpg",
+      "clapham-common-west/8.jpg",
+      "clapham-common-west/9.jpg",
+      "clapham-common-west/10.jpg",
+      "clapham-common-west/11.jpg",
+      "clapham-common-west/12.jpg",
+      "clapham-common-west/13.jpg"
+    ]
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000021",
+    "slug": "sydenham-wells-park",
+    "name": "Sydenham Wells Park",
+    "lat": 51.4294581,
+    "lng": -0.0677576,
+    "surfaceType": "Rubber",
+    "equipmentQualityRating": 2,
+    "equipmentVarietyRating": 1,
+    "nearestTrainStation": "Sydenham, Sydenham Hill",
+    "equipment": [
+      "pullUpBars"
+    ],
+    "images": [
+      "sydenham-wells-park/1.jpg",
+      "sydenham-wells-park/2.jpg",
+      "sydenham-wells-park/3.jpg",
+      "sydenham-wells-park/4.jpg",
+      "sydenham-wells-park/5.jpg",
+      "sydenham-wells-park/6.jpg",
+      "sydenham-wells-park/7.jpg"
+    ]
+  },
+ {
+    "id": "00000000-0000-0000-0000-000000000022",
+    "slug": "bonsor-house",
+    "name": "Bonsor House",
+    "lat": 51.47561,
+    "lng": -0.13955,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 4,
+    "equipmentVarietyRating": 3,
+    "nearestTrainStation": "Battersea Power Station",
+    "equipment": [
+      "pullUpBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "bonsor-house/1.jpg",
+      "bonsor-house/2.jpg",
+      "bonsor-house/3.jpg",
+      "bonsor-house/4.jpg",
+      "bonsor-house/5.jpg",
+      "bonsor-house/6.jpg",
+      "bonsor-house/7.jpg",
+      "bonsor-house/8.jpg"
+    ]
+  },
+ {
+    "id": "00000000-0000-0000-0000-000000000023",
+    "slug": "wenham-house",
+    "name": "Wenham House",
+    "lat": 51.47817,
+    "lng": -0.14191,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 3,
+    "equipmentVarietyRating": 2,
+    "nearestTrainStation": "Battersea Power Station",
+    "equipment": [
+      "pullUpBars",
+      "dipBars"
+    ],
+    "images": [
+      "wenham-house/1.jpg",
+      "wenham-house/2.jpg",
+      "wenham-house/3.jpg",
+      "wenham-house/4.jpg",
+      "wenham-house/5.jpg"
+    ]
+  },
+ {
+    "id": "00000000-0000-0000-0000-000000000024",
+    "slug": "battersea-park",
+    "name": "Battersea Park",
+    "lat": 51.4803406,
+    "lng": -0.1516605,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 5,
+    "equipmentVarietyRating": 5,
+    "nearestTrainStation": "Battersea Park",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "battersea-park/1.jpg",
+      "battersea-park/2.jpg",
+      "battersea-park/3.jpg",
+      "battersea-park/4.jpg",
+      "battersea-park/5.jpg",
+      "battersea-park/6.jpg",
+      "battersea-park/7.jpg",
+      "battersea-park/8.jpg",
+      "battersea-park/9.jpg",
+      "battersea-park/10.jpg"
+    ]
+  }
+]
