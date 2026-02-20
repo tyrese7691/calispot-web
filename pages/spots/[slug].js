@@ -1,7 +1,24 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
+import "leaflet/dist/leaflet.css";
 
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((m) => m.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((m) => m.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import("react-leaflet").then((m) => m.Marker),
+  { ssr: false }
+);
+const Popup = dynamic(
+  () => import("react-leaflet").then((m) => m.Popup),
+  { ssr: false }
+);
 /* ---------------- ICON SIZING ---------------- */
 const responsiveIconSize = {
   width: "8vw",
@@ -40,36 +57,24 @@ const RatingIcon = ({ icon, rating }) => (
   </div>
 );
 
-/* ---------------- DYNAMIC LEAFLET IMPORTS ---------------- */
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false }
-);
-const Popup = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Popup),
-  { ssr: false }
-);
-
 export default function SpotDetail() {
+
+const [L, setL] = useState(null);
+
   const router = useRouter();
   const { slug } = router.query;
   const [spots, setSpots] = useState([]);
   const [spot, setSpot] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
-  const [L, setL] = useState(null);
-  const [logoMarker, setLogoMarker] = useState(null);
 
-  /* ---------------- FETCH SPOTS ---------------- */
+useEffect(() => {
+  import("leaflet").then((leaflet) => {
+    delete leaflet.Icon.Default.prototype._getIconUrl;
+    setL(leaflet);
+  });
+}, []);
+
   useEffect(() => {
-    if (!slug) return;
     fetch(
       "https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/spots/spots.json"
     )
@@ -82,22 +87,16 @@ export default function SpotDetail() {
       .catch((err) => console.error("Error fetching spots:", err));
   }, [slug]);
 
-  /* ---------------- LOAD LEAFLET ICON ---------------- */
-  useEffect(() => {
-    import("leaflet").then((leaflet) => {
-      setL(leaflet);
-      setLogoMarker(
-        new leaflet.Icon({
-          iconUrl: "/images/Calilogobg.png",
-          iconSize: [44, 44],
-          iconAnchor: [22, 44],
-          popupAnchor: [0, -36],
-        })
-      );
-    });
-  }, []);
+if (!spot || !L) return null;
 
-  if (!spot || !L || !logoMarker) return null;
+
+  /* ---------------- MAP MARKER ---------------- */
+  const logoMarker = new L.Icon({
+    iconUrl: "/images/Calilogobg.png",
+    iconSize: [44, 44],
+    iconAnchor: [22, 44],
+    popupAnchor: [0, -36],
+  });
 
   const iconMap = {
     abs: "/images/absyes.png",
@@ -141,7 +140,18 @@ export default function SpotDetail() {
           marginBottom: "2rem",
         }}
       >
-        <button style={buttonStyle} onClick={() => router.push("/")}>
+        <button
+          style={buttonStyle}
+          onClick={() => router.push("/")}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-6px)";
+            e.currentTarget.style.boxShadow = "0 25px 60px rgba(0,0,0,0.55)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.35)";
+          }}
+        >
           Back
         </button>
 
@@ -150,6 +160,14 @@ export default function SpotDetail() {
           target="_blank"
           rel="noopener noreferrer"
           style={buttonStyle}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-6px)";
+            e.currentTarget.style.boxShadow = "0 25px 60px rgba(0,0,0,0.55)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.35)";
+          }}
         >
           Download the App
         </a>
@@ -167,12 +185,12 @@ export default function SpotDetail() {
         {spot.name}
       </h1>
 
-      {/* ---------------- IMAGE GALLERY ---------------- */}
+      {/* ---------------- IMAGE GALLERY FRAME ---------------- */}
       <div
         style={{
           maxWidth: "1000px",
           margin: "0 auto 3rem",
-          padding: "1.5rem",
+          padding: "1.5rem 1.5rem 1.5rem",
           borderRadius: "20px",
           background: "rgba(30,30,30,0.85)",
           boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
@@ -492,6 +510,14 @@ export default function SpotDetail() {
             textDecoration: "none",
             boxShadow: "0 12px 30px rgba(0,0,0,0.35)",
             transition: "transform 0.25s ease, box-shadow 0.25s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-6px)";
+            e.currentTarget.style.boxShadow = "0 25px 60px rgba(0,0,0,0.55)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.35)";
           }}
         >
           Download the App
