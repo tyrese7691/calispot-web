@@ -71,19 +71,19 @@
       "betts-park/9.jpg",
       "betts-park/10.jpg"
     ],
-  "sponsoredPT": {
-    "name": "CaliSpot",
-    "instagram": "calispotapp",
-    "tiktok": "calispotapp",
-    "bio": "Discover London's best CaliSpots"
-  },
-  "workoutGroup": {
-    "name": "Saturday Cali Crew",
-    "dayTime": "Sat 11:00",
-    "level": "Beginner–Intermediate",
-    "contact": "https://chat.whatsapp.com/EXAMPLE123",
-    "notes": "Meet by the pull-up bars. Warm-up together."
-  }
+    "sponsoredPT": {
+      "name": "CaliSpot",
+      "instagram": "calispotapp",
+      "tiktok": "calispotapp",
+      "bio": "Discover London's best CaliSpots"
+    },
+    "workoutGroup": {
+      "name": "Saturday Cali Crew",
+      "dayTime": "Sat 11:00",
+      "level": "Beginnerâ€“Intermediate",
+      "contact": "https://chat.whatsapp.com/EXAMPLE123",
+      "notes": "Meet by the pull-up bars. Warm-up together."
+    }
   },
   {
     "id": "00000000-0000-0000-0000-000000000004",
@@ -316,7 +316,7 @@
   {
     "id": "00000000-0000-0000-0000-000000000013",
     "slug": "king-georges-field",
-    "name": "King George’s Field",
+    "name": "King Georgeâ€™s Field",
     "lat": 51.38727,
     "lng": -0.0903023,
     "surfaceType": "Concrete",
@@ -580,7 +580,7 @@
       "sydenham-wells-park/7.jpg"
     ]
   },
- {
+  {
     "id": "00000000-0000-0000-0000-000000000022",
     "slug": "bonsor-house",
     "name": "Bonsor House",
@@ -606,7 +606,7 @@
       "bonsor-house/8.jpg"
     ]
   },
- {
+  {
     "id": "00000000-0000-0000-0000-000000000023",
     "slug": "wenham-house",
     "name": "Wenham House",
@@ -628,7 +628,7 @@
       "wenham-house/5.jpg"
     ]
   },
- {
+  {
     "id": "00000000-0000-0000-0000-000000000024",
     "slug": "battersea-park",
     "name": "Battersea Park",
@@ -658,7 +658,7 @@
       "battersea-park/10.jpg"
     ]
   },
- {
+  {
     "id": "00000000-0000-0000-0000-000000000025",
     "slug": "paddington-recreation-ground",
     "name": "Paddington Recreation Ground",
@@ -699,7 +699,7 @@
       "paddington-recreation-ground/21.jpg"
     ]
   },
- {
+  {
     "id": "00000000-0000-0000-0000-000000000026",
     "slug": "westbourne-green",
     "name": "Westbourne Green",
@@ -730,10 +730,10 @@
       "westbourne-green/12.jpg",
       "westbourne-green/13.jpg",
       "westbourne-green/14.jpg",
-      "westbourne-green/15.jpg",
+      "westbourne-green/15.jpg"
     ]
   },
- {
+  {
     "id": "00000000-0000-0000-0000-000000000027",
     "slug": "avondale-park",
     "name": "Avondale Park",
@@ -771,7 +771,7 @@
       "avondale-park/18.jpg"
     ]
   },
- {
+  {
     "id": "00000000-0000-0000-0000-000000000028",
     "slug": "holland-park",
     "name": "Holland Park",
