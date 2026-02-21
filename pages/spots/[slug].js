@@ -65,7 +65,27 @@ const [L, setL] = useState(null);
   const { slug } = router.query;
   const [spots, setSpots] = useState([]);
   const [spot, setSpot] = useState(null);
-  const [activeImage, setActiveImage] = useState(null);
+const [activeImage, setActiveImage] = useState(null);
+const [touchStartX, setTouchStartX] = useState(null); // <-- for swipe
+const handleTouchStart = (e) => {
+  setTouchStartX(e.touches[0].clientX);
+};
+
+const handleTouchEnd = (e) => {
+  if (touchStartX === null) return;
+  const touchEndX = e.changedTouches[0].clientX;
+  const diff = touchStartX - touchEndX;
+
+  if (diff > 50) {
+    // swipe left → next image
+    setActiveImage((prev) => (prev === spot.images.length - 1 ? 0 : prev + 1));
+  } else if (diff < -50) {
+    // swipe right → previous image
+    setActiveImage((prev) => (prev === 0 ? spot.images.length - 1 : prev - 1));
+  }
+
+  setTouchStartX(null);
+};
 
 useEffect(() => {
   import("leaflet").then((leaflet) => {
@@ -92,7 +112,7 @@ if (!spot || !L) return null;
 
   /* ---------------- MAP MARKER ---------------- */
   const logoMarker = new L.Icon({
-    iconUrl: "/images/Calilogobg.png",
+    iconUrl: "/images/calilogobg.png",
     iconSize: [44, 44],
     iconAnchor: [22, 44],
     popupAnchor: [0, -36],
@@ -104,7 +124,7 @@ if (!spot || !L) return null;
     lowBars: "/images/lowbaryes.png",
     monkeyBars: "/images/monkeybarsyes.png",
     pullUpBars: "/images/pullupyes.png",
-    train: "/images/Train.png",
+    train: "/images/train.png",
   };
 
   const buttonStyle = {
@@ -253,34 +273,82 @@ if (!spot || !L) return null;
         </div>
       </div>
 
-      {/* ---------------- FULLSCREEN IMAGE ---------------- */}
-      {activeImage !== null && (
-        <div
-          onClick={() => setActiveImage(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.85)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-            cursor: "zoom-out",
-          }}
-        >
-          <img
-            src={`https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/images/${spot.images[activeImage]}`}
-            alt=""
-            style={{
-              maxWidth: "90%",
-              maxHeight: "90%",
-              borderRadius: "16px",
-              objectFit: "contain",
-            }}
-          />
-        </div>
-      )}
+{/* ---------------- FULLSCREEN IMAGE WITH NAV + SWIPE ---------------- */}
+{activeImage !== null && (
+  <div
+    onClick={() => setActiveImage(null)}
+    onTouchStart={handleTouchStart}
+    onTouchEnd={handleTouchEnd}
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.85)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+      cursor: "zoom-out",
+    }}
+  >
+    {/* Left arrow */}
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setActiveImage((prev) => (prev === 0 ? spot.images.length - 1 : prev - 1));
+      }}
+      style={{
+        position: "absolute",
+        left: "20px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        fontSize: "2rem",
+        color: "#fff",
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+        userSelect: "none",
+      }}
+    >
+      ‹
+    </button>
 
+    {/* Image */}
+    <img
+      src={`https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/images/${spot.images[activeImage]}`}
+      alt=""
+      onClick={(e) => e.stopPropagation()} // clicking image won't close
+      style={{
+        maxWidth: "90%",
+        maxHeight: "90%",
+        borderRadius: "16px",
+        objectFit: "contain",
+        zIndex: 2,
+      }}
+    />
+
+    {/* Right arrow */}
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setActiveImage((prev) => (prev === spot.images.length - 1 ? 0 : prev + 1));
+      }}
+      style={{
+        position: "absolute",
+        right: "20px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        fontSize: "2rem",
+        color: "#fff",
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+        userSelect: "none",
+      }}
+    >
+      ›
+    </button>
+  </div>
+)}
       {/* ---------------- QUALITY & VARIETY ---------------- */}
       <div
         style={{
@@ -322,14 +390,10 @@ if (!spot || !L) return null;
                 e.currentTarget.style.boxShadow = "0 25px 70px rgba(0,0,0,0.55)";
               }}
             >
-              <RatingIcon
-                icon={`/images/${type}.png`}
-                rating={
-                  type === "Quality"
-                    ? spot.equipmentQualityRating
-                    : spot.equipmentVarietyRating
-                }
-              />
+<RatingIcon
+  icon={`/images/${type.toLowerCase()}.png`} // should now match quality.png / variety.png
+  rating={type === "Quality" ? spot.equipmentQualityRating : spot.equipmentVarietyRating}
+/>
             </div>
           ))}
         </div>
