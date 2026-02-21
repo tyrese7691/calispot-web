@@ -53,17 +53,6 @@ const filteredSpots = spots.filter((spot) => {
 
 useEffect(() => {
   fetch("https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/spots/spots.json", {
-<<<<<<< HEAD
-    cache: "no-store" // ensure always fetch fresh data
-  })
-    .then(async (res) => {
-      let text = await res.text();
-      text = text.replace(/,(\s*[\]}])/g, "$1"); // remove trailing commas
-      return JSON.parse(text);
-    })
-    .then((data) => setSpots(data))
-    .catch((err) => console.error("JSON Parse error:", err));
-=======
     cache: "no-store"
   })
     .then(async (res) => {
@@ -79,7 +68,6 @@ useEffect(() => {
     })
     .then((data) => setSpots(data))
     .catch((err) => console.error("Dirty JSON parse error:", err));
->>>>>>> b201377 (Fix [slug].js JSON parse issue and other updates)
 }, []);
 
   if (!L) return null;
