@@ -22,8 +22,27 @@ const Popup = dynamic(
 );
 
 export default function SpotsGrid() {
+const [showContact, setShowContact] = useState(false);
   const [L, setL] = useState(null);
   const [spots, setSpots] = useState([]);
+
+const [filterQuality, setFilterQuality] = useState("any");
+const [filterVariety, setFilterVariety] = useState("any");
+const [filterEquipment, setFilterEquipment] = useState("any");
+
+// Filtered spots
+const filteredSpots = spots.filter((spot) => {
+  // Quality filter
+  if (filterQuality !== "any" && spot.quality < parseInt(filterQuality)) return false;
+  
+  // Variety filter
+  if (filterVariety !== "any" && spot.variety < parseInt(filterVariety)) return false;
+
+  // Equipment filter (spot.equipment is an array of available equipment types)
+  if (filterEquipment !== "any" && !spot.equipment.includes(filterEquipment)) return false;
+
+  return true;
+});
 
   useEffect(() => {
     import("leaflet").then((leaflet) => {
@@ -44,7 +63,7 @@ export default function SpotsGrid() {
   if (!L) return null;
 
   const logoMarker = new L.Icon({
-    iconUrl: "/images/Calilogobg.png",
+    iconUrl: "/images/calilogobg.png",
     iconSize: [40, 40],
     iconAnchor: [20, 40],
     popupAnchor: [0, -35],
@@ -69,6 +88,39 @@ export default function SpotsGrid() {
     boxShadow: "0 20px 50px rgba(0,0,0,0.45)",
   };
 
+const inputStyle = {
+  width: "100%",
+  boxSizing: "border-box",
+  marginBottom: "0.75rem",
+  padding: "0.65rem 0.9rem",
+  borderRadius: "12px",
+  border: "1px solid rgba(255,255,255,0.15)",
+  background: "#111",
+  color: "#fff",
+  fontSize: "0.95rem",
+};
+
+const submitStyle = {
+  flex: 1,
+  background: "#FFD500",
+  color: "#121212",
+  padding: "0.6rem",
+  borderRadius: "12px",
+  fontWeight: 600,
+  border: "none",
+  cursor: "pointer",
+};
+
+const cancelStyle = {
+  flex: 1,
+  background: "transparent",
+  color: "#aaa",
+  padding: "0.6rem",
+  borderRadius: "12px",
+  border: "1px solid rgba(255,255,255,0.2)",
+  cursor: "pointer",
+};
+
   return (
     <div
       style={{
@@ -90,7 +142,7 @@ export default function SpotsGrid() {
           marginBottom: "3rem",
         }}
       >
-        <img src="/images/Calilogobg.png" alt="CaliSpot" style={{ height: "60px" }} />
+        <img src="/images/calilogobg.png" alt="CaliSpot" style={{ height: "60px" }} />
         <a
           href="https://apps.apple.com/gb/app/calispot/id6747050360"
           target="_blank"
@@ -115,18 +167,24 @@ export default function SpotsGrid() {
           animation: "fadeUp 0.7s ease forwards",
         }}
       >
-        <h1
-          style={{
-            fontSize: "clamp(2.4rem, 5vw, 3.4rem)",
-            fontWeight: 800,
-            letterSpacing: "-0.03em",
-            marginBottom: "1rem",
-          }}
-        >
-          Train anywhere.
-          <br />
-          Know exactly what you’re walking into.
-        </h1>
+<h1
+  style={{
+    fontSize: "clamp(2.4rem, 5vw, 3.4rem)",
+    fontWeight: 800,
+    letterSpacing: "-0.03em",
+    marginBottom: "1rem",
+  }}
+>
+  <span
+    style={{
+      textDecoration: "underline",
+      textDecorationColor: "#FFD500",
+      textDecorationThickness: "3px", // optional, makes the underline thicker
+    }}
+  >
+    Train anywhere.
+  </span>
+</h1>
 
         <p style={{ lineHeight: "1.7", color: "#ccc", fontSize: "1.05rem" }}>
           CaliSpot helps you find real outdoor calisthenics parks in London -
@@ -134,45 +192,49 @@ export default function SpotsGrid() {
           never waste a session.
         </p>
       </div>
+{/* Map Hero (no filters) */}
+<div
+  style={{
+    height: "420px",
+    marginBottom: "3.5rem",
+    borderRadius: "22px",
+    overflow: "hidden",
+    boxShadow: "0 30px 80px rgba(0,0,0,0.6)",
+  }}
+>
+  <MapContainer
+    center={[51.5, -0.1]}
+    zoom={11}
+    style={{ height: "100%", width: "100%" }}
+  >
+    <TileLayer
+      url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+      attribution="&copy; OpenStreetMap & CARTO"
+    />
 
-      {/* Map Hero */}
-      <div
-        style={{
-          height: "420px",
-          marginBottom: "3.5rem",
-          borderRadius: "22px",
-          overflow: "hidden",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.6)",
-        }}
+    {/* All Markers */}
+    {spots.map((spot) => (
+      <Marker
+        key={spot.id}
+        position={[spot.lat, spot.lng]}
+        icon={logoMarker}
       >
-        <MapContainer
-          center={[51.5, -0.1]}
-          zoom={11}
-          style={{ height: "100%", width: "100%" }}
-        >
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            attribution="&copy; OpenStreetMap & CARTO"
-          />
-          {spots.map((spot) => (
-            <Marker key={spot.id} position={[spot.lat, spot.lng]} icon={logoMarker}>
-              <Popup>
-                <Link
-                  href={`/spots/${spot.slug}`}
-                  style={{
-                    textDecoration: "underline",
-                    color: "#000",
-                    fontWeight: 600,
-                  }}
-                >
-                  {spot.name}
-                </Link>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </div>
-
+        <Popup>
+          <Link
+            href={`/spots/${spot.slug}`}
+            style={{
+              textDecoration: "underline",
+              color: "#000",
+              fontWeight: 600,
+            }}
+          >
+            {spot.name}
+          </Link>
+        </Popup>
+      </Marker>
+    ))}
+  </MapContainer>
+</div>
       {/* Features */}
       <div
         style={{
@@ -195,7 +257,7 @@ export default function SpotsGrid() {
           }}
         >
           {[
-            ["Real outdoor parks", "Only verified calisthenics equipment — no gyms, no filler."],
+            ["Real outdoor parks", "Only verified calisthenics equipment - no gyms, no filler."],
             ["Equipment photos", "See bars, layouts, and setups before you go."],
             ["Interactive map", "Explore London visually and plan sessions fast."],
             ["Nearby transport", "Quick access to stations and routes."],
@@ -246,11 +308,19 @@ export default function SpotsGrid() {
         {[
           { q: "How do I save a spot to my favourites?", a: "Tap the heart icon on any spot page in the CaliSpot iOS app. Your favourites are instantly accessible from your profile." },
           { q: "Can I suggest a new park?", a: "Yes! Use the 'Suggest Spot' feature in the app to submit new parks, and our team will review them for accuracy." },
-          { q: "Is CaliSpot free?", a: "Absolutely. The app is fully free to explore, save spots, and see maps — you only need an iOS device." },
+          { q: "Is CaliSpot free?", a: "Absolutely. The app is fully free to explore, save spots, and see maps - you only need an iOS device." },
           { q: "Can I see who is training at a spot?", a: "You can see recent activity in the app with our 'Who’s Here?' feature, giving you a sense of real-time usage." },
           { q: "Can I filter spots by equipment type?", a: "Yes, use the filters in the app to view only the parks with the equipment you want to train on." },
           { q: "How often is the park data updated?", a: "We regularly update photos, maps, and spot info to ensure accuracy and keep up with changes." },
           { q: "Can I share a spot with friends?", a: "Yes! Tap the share icon on any spot page to send a link via social media, message, or email." },
+  { 
+    q: "How is the 'Quality' rating measured?", 
+    a: "Quality is rated based on the condition of the equipment: stability, safety, and maintenance. Each spot is inspected and photographed to ensure accurate scoring." 
+  },
+  { 
+    q: "How is the 'Variety' rating measured?", 
+    a: "Variety measures the range of equipment available - for example, pull-up bars, monkey bars, dip bars, low bars, and abs station. More equipment types = higher variety rating." 
+  },
         ].map(({ q, a }, i) => (
           <details
             key={i}
@@ -340,25 +410,103 @@ export default function SpotsGrid() {
         </a>
       </div>
 
-      {/* Footer */}
-      <div style={{ textAlign: "center", fontSize: "0.85rem", color: "#888", marginBottom: "2rem" }}>
-        <Link href="/privacy" style={{ color: "#888" }}>
-          Privacy Policy
-        </Link>
-      </div>
+{/* Footer */}
+<div
+  style={{
+    textAlign: "center",
+    fontSize: "0.85rem",
+    color: "#888",
+    marginBottom: "2rem",
+  }}
+>
+  <Link href="/privacy" style={{ color: "#888", textDecoration: "underline" }}>
+    Privacy Policy
+  </Link>
 
-      <style jsx global>{`
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(14px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+  <span style={{ margin: "0 0.6rem" }}>•</span>
+
+  <span
+    onClick={() => setShowContact(true)}
+    style={{
+      color: "#888",
+      textDecoration: "underline",
+      cursor: "pointer",
+    }}
+  >
+    Contact us
+  </span>
+{showContact && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.65)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+    }}
+    onClick={() => setShowContact(false)}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        width: "100%",
+        maxWidth: "420px",
+        padding: "2rem",
+        borderRadius: "20px",
+        background: "linear-gradient(180deg, #1f1f1f 0%, #141414 100%)",
+        boxShadow: "0 30px 80px rgba(0,0,0,0.7)",
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <h3 style={{ marginBottom: "1rem" }}>Contact CaliSpot</h3>
+
+      <form
+        action="mailto:8mind@gmail.com"
+        method="POST"
+        encType="text/plain"
+      >
+        <input
+          name="name"
+          placeholder="Your name"
+          required
+          style={inputStyle}
+        />
+
+        <input
+          name="email"
+          type="email"
+          placeholder="Your email"
+          required
+          style={inputStyle}
+        />
+
+        <textarea
+          name="message"
+          placeholder="Your message"
+          rows={4}
+          required
+          style={{ ...inputStyle, resize: "none" }}
+        />
+
+        <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem" }}>
+          <button type="submit" style={submitStyle}>
+            Send
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowContact(false)}
+            style={cancelStyle}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+</div>
     </div>
   );
 }
