@@ -770,5 +770,51 @@
       "avondale-park/17.jpg",
       "avondale-park/18.jpg"
     ]
+  },
+ {
+    "id": "00000000-0000-0000-0000-000000000028",
+    "slug": "holland-park",
+    "name": "Holland Park",
+    "lat": 51.5001482,
+    "lng": -0.2021289,
+    "surfaceType": "Grass",
+    "equipmentQualityRating": 4,
+    "equipmentVarietyRating": 5,
+    "nearestTrainStation": "High Street Kensington",
+    "equipment": [
+      "pullUpBars",
+      "dipBars",
+      "monkeyBars",
+      "lowBars",
+      "abs"
+    ],
+    "images": [
+      "holland-park/1.jpg",
+      "holland-park/2.jpg",
+      "holland-park/3.jpg",
+      "holland-park/4.jpg",
+      "holland-park/5.jpg",
+      "holland-park/6.jpg",
+      "holland-park/7.jpg",
+      "holland-park/8.jpg",
+      "holland-park/9.jpg",
+      "holland-park/10.jpg",
+      "holland-park/11.jpg",
+      "holland-park/12.jpg",
+      "holland-park/13.jpg",
+      "holland-park/14.jpg",
+      "holland-park/15.jpg",
+      "holland-park/16.jpg",
+      "holland-park/17.jpg",
+      "holland-park/18.jpg",
+      "holland-park/19.jpg",
+      "holland-park/20.jpg",
+      "holland-park/21.jpg",
+      "holland-park/22.jpg",
+      "holland-park/23.jpg",
+      "holland-park/24.jpg",
+      "holland-park/25.jpg",
+      "holland-park/26.jpg"
+    ]
   }
 ]
