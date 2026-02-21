@@ -94,19 +94,29 @@ useEffect(() => {
   });
 }, []);
 
-  useEffect(() => {
-    fetch(
-      "https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/spots/spots.json"
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setSpots(data);
-        const found = data.find((s) => s.slug === slug);
-        if (found) setSpot(found);
-      })
-      .catch((err) => console.error("Error fetching spots:", err));
-  }, [slug]);
+useEffect(() => {
+  if (!slug) return; // wait for slug from router
 
+  fetch(
+    "https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/spots/spots.json",
+    { cache: "no-store" }
+  )
+    .then(async (res) => {
+      let text = await res.text();
+
+      // Dirty fixes
+      text = text.replace(/,(\s*[\]}])/g, "$1");
+      text = text.replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":');
+
+      return JSON.parse(text);
+    })
+    .then((data) => {
+      setSpots(data);
+      const found = data.find((s) => s.slug === slug); // pick the matching spot
+      setSpot(found || null);
+    })
+    .catch((err) => console.error("Dirty JSON parse error:", err));
+}, [slug]);
 if (!spot || !L) return null;
 
 

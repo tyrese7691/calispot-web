@@ -14,7 +14,7 @@ export default function Privacy() {
     >
       {/* Header with logo */}
       <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-        <img src="/images/Calilogobg.png" alt="CaliSpot" style={{ height: "60px" }} />
+        <img src="/images/calilogobg.png" alt="CaliSpot" style={{ height: "60px" }} />
       </div>
 
       {/* Title */}
