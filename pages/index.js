@@ -51,14 +51,18 @@ const filteredSpots = spots.filter((spot) => {
     });
   }, []);
 
-  useEffect(() => {
-    fetch(
-      "https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/spots/spots.json"
-    )
-      .then((res) => res.json())
-      .then((data) => setSpots(data))
-      .catch((err) => console.error("Error fetching spots:", err));
-  }, []);
+useEffect(() => {
+  fetch("https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/spots/spots.json", {
+    cache: "no-store" // ensure always fetch fresh data
+  })
+    .then(async (res) => {
+      let text = await res.text();
+      text = text.replace(/,(\s*[\]}])/g, "$1"); // remove trailing commas
+      return JSON.parse(text);
+    })
+    .then((data) => setSpots(data))
+    .catch((err) => console.error("JSON Parse error:", err));
+}, []);
 
   if (!L) return null;
 
