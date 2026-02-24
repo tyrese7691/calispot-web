@@ -73,14 +73,14 @@
     ],
     "sponsoredPT": {
       "name": "CaliSpot",
-      "instagram": "calispotapp",
-      "tiktok": "calispotapp",
+      "instagram": "calispot.xyz",
+      "tiktok": "calispot.xyz",
       "bio": "Discover London's best CaliSpots"
     },
     "workoutGroup": {
       "name": "Saturday Cali Crew",
       "dayTime": "Sat 11:00",
-      "level": "Beginnerâ€“Intermediate",
+      "level": "Beginner - Intermediate",
       "contact": "https://chat.whatsapp.com/EXAMPLE123",
       "notes": "Meet by the pull-up bars. Warm-up together."
     }
@@ -656,7 +656,20 @@
       "battersea-park/8.jpg",
       "battersea-park/9.jpg",
       "battersea-park/10.jpg"
-    ]
+    ],
+    "sponsoredPT": {
+      "name": "Jacob Ward",
+      "instagram": "jacobwardd",
+      "tiktok": "jacobwardfit",
+      "bio": "Making exercise FUN!💪🏼"
+    },
+    "workoutGroup": {
+      "name": "Better Connections X CaliSpot",
+      "dayTime": "Friday 13th March, 12:00",
+      "level": "Beginners welcome",
+      "contact": "https://chat.whatsapp.com/BoXLEdtk8sI4IfJv5YJuKm",
+      "notes": "Nothing is compulsory. You can rest or modify anything if you feel the need to. Today is about moving, not pushing limits."
+    }
   },
   {
     "id": "00000000-0000-0000-0000-000000000025",
