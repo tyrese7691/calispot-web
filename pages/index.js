@@ -118,14 +118,23 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>CaliSpot</title>
-        <meta name="description" content="Every outdoor calisthenics park in London, mapped and rated. Real photos. Live check-ins. Zero ads." />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-        <link href={FONTS} rel="stylesheet" />
-      </Head>
+<Head>
+
+  <title>CaliSpot</title>
+
+
+  <meta
+    name="description"
+    content="Every outdoor calisthenics park in London, mapped and rated. Real photos. Live check-ins. Zero ads."
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+  <link href={FONTS} rel="stylesheet" />
+<link rel="icon" href="/images/calilogobg.png" />
+</Head>
+
 
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
