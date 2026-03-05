@@ -38,7 +38,6 @@ function Phone({ src, alt = "App screenshot", width = 248, tilt = 0, extraStyle 
 }
 
 export default function Home() {
-  const rCur = useRef(null);
   const rNav = useRef(null);
   const rSs  = useRef(null);
   const rSph = useRef(null);
@@ -49,17 +48,6 @@ export default function Home() {
   const rCc  = useRef(null);
 
   useEffect(() => {
-    // Cursor
-    const cur = rCur.current;
-    const onMove = e => { cur.style.left = e.clientX+"px"; cur.style.top = e.clientY+"px"; };
-    document.addEventListener("mousemove", onMove, { passive:true });
-    document.addEventListener("mouseleave", () => cur.classList.add("hid"));
-    document.addEventListener("mouseenter", () => cur.classList.remove("hid"));
-    document.querySelectorAll("a,button").forEach(el => {
-      el.addEventListener("mouseenter", () => cur.classList.add("big"));
-      el.addEventListener("mouseleave", () => cur.classList.remove("big"));
-    });
-
     // Scroll reveal
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
@@ -124,7 +112,6 @@ export default function Home() {
 
     return () => {
       cancelAnimationFrame(raf);
-      document.removeEventListener("mousemove", onMove);
       io.disconnect(); ccio.disconnect();
     };
   }, []);
@@ -150,11 +137,7 @@ export default function Home() {
           --mono:'DM Mono',monospace;
         }
         html{scroll-behavior:smooth}
-        body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden;cursor:none}
-
-        #cur{position:fixed;width:10px;height:10px;background:var(--y);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .18s,height .18s,opacity .18s;mix-blend-mode:difference}
-        #cur.big{width:44px;height:44px}
-        #cur.hid{opacity:0}
+        body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden}
 
         /* NAV */
         nav{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
@@ -292,8 +275,6 @@ export default function Home() {
         }
       `}</style>
 
-      <div id="cur" ref={rCur} />
-
       {/* NAV */}
       <nav ref={rNav}>
         <a href="/" className="nl">
@@ -301,7 +282,7 @@ export default function Home() {
           <span className="nl-name">CaliSpot</span>
         </a>
         <a href={APP_STORE} className="nbtn" target="_blank" rel="noreferrer">
-          <AppleIcon s={14} /> Download Free
+          Download on iOS
         </a>
       </nav>
 
@@ -314,7 +295,7 @@ export default function Home() {
           <h1 className="hh1">TRAIN <span className="yr">ANYWHERE</span></h1>
           <p className="hsub">Every outdoor calisthenics park in London, mapped and rated. Real photos. Live check-ins. Zero ads.</p>
           <div className="hact">
-            <a href={APP_STORE} className="bpri" target="_blank" rel="noreferrer"><AppleIcon /> Download Free</a>
+            <a href={APP_STORE} className="bpri" target="_blank" rel="noreferrer">Download on iOS</a>
           </div>
         </div>
         <div className="mq">
@@ -404,12 +385,12 @@ export default function Home() {
         <h2 className="stit rv d1">Everything<br />you need.<br /><span className="gl">Nothing</span> else.</h2>
         <div className="fg">
           {[
-            ["01","📍","Closest Spots First","Parks sorted by live GPS. The nearest pull-up bar always shows first."],
-            ["02","📸","Real Photos","Know exactly what to expect. Every spot photographed by athletes who train there."],
-            ["03","🟢","Live Check-ins","See who's training right now. Find the energy or the quiet session you need."],
-            ["04","⭐","Equipment Ratings","Quality and variety scored per park. Know before you go."],
-            ["05","🔥","Streak Tracking","Log sessions, build streaks, own your consistency."],
-            ["06","🗓","Events & Trainers","Free community sessions and personal trainers at your nearest spots."],
+            ["📍","Closest Spots First","Parks sorted by live GPS. Find your nearest park in seconds."],
+            ["📸","Real Photos","Know exactly what to expect. Every spot photographed by athletes who train there."],
+            ["🟢","Live Check-ins","See who's training right now. Find the energy or the quiet session you need."],
+            ["⭐","Equipment Ratings","Quality and variety scored per park. Know before you go."],
+            ["🔥","Streak Tracking","Log sessions, build streaks, own your consistency."],
+            ["🗓","Events & Trainers","Community sessions and personal trainers at your nearest spots."],
           ].map(([num,icon,title,desc],i) => (
             <div className={`fc rv ${i%3===1?"d1":i%3===2?"d2":""}`} key={num}>
               <div className="fn">{num}</div>
@@ -445,7 +426,7 @@ export default function Home() {
         <div className="cc" ref={rCc}>
           <h2 className="ch2">Your next<br />session<br />starts here.</h2>
           <p className="cp">Find your spot in seconds.</p>
-          <a href={APP_STORE} className="cb" target="_blank" rel="noreferrer"><AppleIcon /> Download on App Store</a>
+          <a href={APP_STORE} className="cb" target="_blank" rel="noreferrer">Download on iOS</a>
         </div>
       </div>
 
