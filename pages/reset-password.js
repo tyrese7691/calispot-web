@@ -6,24 +6,20 @@ export default function ResetPassword() {
   const [showManual, setShowManual] = useState(false);
 
   useEffect(() => {
-    // Build deep link forwarding the ?code= query param Supabase appends
+    // Build the deep link immediately — window.location.search is fully available
+    // in useEffect. Capture it BEFORE any async work so the redirect carries the ?code=
     const link = "calispot://reset-password" + window.location.search;
     setDeepLink(link);
 
-    // Attempt redirect after short delay so page renders first
-    const redirectTimer = setTimeout(() => {
-      window.location.href = link;
-    }, 300);
+    // Redirect immediately with the correct link (no setTimeout delay)
+    window.location.href = link;
 
-    // Show manual button after 2.5s in case app didn't open
+    // Show manual button after 2.5s in case the app didn't open
     const fallbackTimer = setTimeout(() => {
       setShowManual(true);
     }, 2500);
 
-    return () => {
-      clearTimeout(redirectTimer);
-      clearTimeout(fallbackTimer);
-    };
+    return () => clearTimeout(fallbackTimer);
   }, []);
 
   return (
