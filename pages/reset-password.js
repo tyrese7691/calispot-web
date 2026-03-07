@@ -3,29 +3,15 @@ import Head from "next/head";
 
 export default function ResetPassword() {
   const [deepLink, setDeepLink] = useState("calispot://reset-password");
-  const [showManual, setShowManual] = useState(false);
 
   useEffect(() => {
-    // Build the deep link immediately — window.location.search is fully available
-    // in useEffect. Capture it BEFORE any async work so the redirect carries the ?code=
-    const link = "calispot://reset-password" + window.location.search;
-    setDeepLink(link);
-
-    // Redirect immediately with the correct link (no setTimeout delay)
-    window.location.href = link;
-
-    // Show manual button after 2.5s in case the app didn't open
-    const fallbackTimer = setTimeout(() => {
-      setShowManual(true);
-    }, 2500);
-
-    return () => clearTimeout(fallbackTimer);
+    setDeepLink("calispot://reset-password" + window.location.search);
   }, []);
 
   return (
     <>
       <Head>
-        <title>Opening CaliSpot…</title>
+        <title>Reset Password — CaliSpot</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
@@ -44,29 +30,20 @@ export default function ResetPassword() {
         }
         .card{max-width:360px;width:100%}
         .logo{width:64px;height:64px;border-radius:50%;display:block;margin:0 auto 20px}
-        .brand{font-size:11px;font-weight:700;letter-spacing:4px;color:#F5C842;text-transform:uppercase;margin-bottom:32px}
+        .brand{font-size:11px;font-weight:700;letter-spacing:4px;color:#0d0d0d;text-transform:uppercase;margin-bottom:32px;background:#F5C842;display:inline-block;padding:4px 12px;border-radius:50px}
         h1{font-size:22px;font-weight:800;color:#fff;margin-bottom:10px}
         p{font-size:15px;color:#888;line-height:1.6;margin-bottom:32px}
         .btn{
           display:inline-block;
-          padding:14px 32px;
+          padding:16px 32px;
           background:#F5C842;
           color:#0d0d0d;
           font-weight:800;
-          font-size:15px;
-          border-radius:10px;
+          font-size:16px;
+          border-radius:12px;
           text-decoration:none;
           width:100%;
         }
-        .spinner{
-          width:32px;height:32px;
-          border:3px solid #222;
-          border-top-color:#F5C842;
-          border-radius:50%;
-          animation:spin 0.8s linear infinite;
-          margin:0 auto 20px;
-        }
-        @keyframes spin{to{transform:rotate(360deg)}}
       `}</style>
 
       <div className="card">
@@ -76,25 +53,9 @@ export default function ResetPassword() {
           className="logo"
         />
         <p className="brand">CALISPOT</p>
-
-        {!showManual ? (
-          <>
-            <div className="spinner" />
-            <h1>Opening app…</h1>
-            <p>You&apos;ll be redirected to CaliSpot to set your new password.</p>
-          </>
-        ) : (
-          <>
-            <h1>Tap to open CaliSpot</h1>
-            <p>
-              If the app didn&apos;t open automatically, tap the button below.
-              Make sure CaliSpot is installed.
-            </p>
-            <a href={deepLink} className="btn">
-              Open CaliSpot
-            </a>
-          </>
-        )}
+        <h1>Reset your password</h1>
+        <p>Tap below to open CaliSpot and choose your new password.</p>
+        <a href={deepLink} className="btn">Open CaliSpot</a>
       </div>
     </>
   );
