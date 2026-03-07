@@ -30,7 +30,7 @@ export default function ResetPassword() {
         }
         .card{max-width:360px;width:100%}
         .logo{width:64px;height:64px;border-radius:50%;display:block;margin:0 auto 20px}
-        .brand{font-size:11px;font-weight:700;letter-spacing:4px;color:#0d0d0d;text-transform:uppercase;margin-bottom:32px;background:#F5C842;display:inline-block;padding:4px 12px;border-radius:50px}
+        .brand{font-size:11px;font-weight:700;letter-spacing:4px;color:#0d0d0d;text-transform:uppercase;margin-bottom:32px}
         h1{font-size:22px;font-weight:800;color:#fff;margin-bottom:10px}
         p{font-size:15px;color:#888;line-height:1.6;margin-bottom:32px}
         .btn{
