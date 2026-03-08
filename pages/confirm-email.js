@@ -15,25 +15,26 @@ export default function ConfirmEmail() {
 
     const params = new URLSearchParams(window.location.search);
 
-    // Supabase PKCE: after server-side token verification it redirects here with ?code=xxx
-    // We pass that code straight to the app via deep link; the app calls exchangeCodeForSession.
-    const code  = params.get("code");
-    const error = params.get("error_description") || params.get("error");
+    // The email template links directly here with token_hash + type.
+    // We pass these straight to the app; the app calls verifyOTP(tokenHash:type:).
+    const tokenHash = params.get("token_hash");
+    const type      = params.get("type") || "signup";
+    const error     = params.get("error_description") || params.get("error");
 
     if (error) {
-      setErrorMsg(error);
+      setErrorMsg(decodeURIComponent(error));
       setStatus("error");
       return;
     }
 
-    if (!code) {
-      setErrorMsg("No confirmation code found in the link. Please try signing up again.");
+    if (!tokenHash) {
+      setErrorMsg("No confirmation token found. Please try signing up again.");
       setStatus("error");
       return;
     }
 
     // Build the deep link — AppEntryView handles calispot://confirm-email
-    const deepLink = `calispot://confirm-email?code=${encodeURIComponent(code)}`;
+    const deepLink = `calispot://confirm-email?token_hash=${encodeURIComponent(tokenHash)}&type=${encodeURIComponent(type)}`;
 
     // Try to open the app. After a short delay, if we're still here, show success
     // (the browser usually suppresses the "app not found" error anyway).
