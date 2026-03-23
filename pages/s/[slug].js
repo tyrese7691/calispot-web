@@ -89,10 +89,21 @@ export default function SpotPage() {
       .catch(() => setEvents([]));
   }, [slug]);
 
+  // Attempt to open in app silently — iframe method fails quietly if app not installed
+  // avoids Safari "address is invalid" error that window.location.href causes
   useEffect(() => {
     if (!slug) return;
-    const t = setTimeout(() => { window.location.href = `calispot://s/${slug}`; }, 500);
-    return () => clearTimeout(t);
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = `calispot://s/${slug}`;
+    document.body.appendChild(iframe);
+    const t = setTimeout(() => {
+      try { document.body.removeChild(iframe); } catch {}
+    }, 1000);
+    return () => {
+      clearTimeout(t);
+      try { document.body.removeChild(iframe); } catch {}
+    };
   }, [slug]);
 
   const onTouchStart = e => setTouchStart(e.touches[0].clientX);
@@ -219,9 +230,11 @@ export default function SpotPage() {
         .f-copy{font-family:var(--mono);font-size:.52rem;color:rgba(255,255,255,.1)}
 
         .overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:zoom-out}
-        .overlay img{max-width:92%;max-height:90vh;border-radius:14px;object-fit:contain}
+        .overlay img{max-width:92%;max-height:78vh;border-radius:14px;object-fit:contain}
         .overlay-arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:2.8rem;color:rgba(255,255,255,.6);background:none;border:none;cursor:pointer;padding:0 20px;user-select:none;transition:color .2s}
         .overlay-arrow:hover{color:#fff}
+        .overlay-close{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:10000}
+        .overlay-close:hover{background:rgba(255,255,255,.2)}
 
         .state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px;text-align:center;padding:40px}
         .state-icon{font-size:3rem}
@@ -336,7 +349,7 @@ export default function SpotPage() {
                 <div className="app-bar-sub">Check in · See who&apos;s here · Log session</div>
               </div>
             </div>
-            <a href={`calispot://s/${spot.slug}`} className="app-bar-btn">Open in App</a>
+            <a href={`calispot://s/${spot.slug}`} className="app-bar-btn">Open App</a>
           </div>
 
           <div className="body">
@@ -503,7 +516,7 @@ export default function SpotPage() {
 
             {/* CTA */}
             <div className="cta">
-              <div className="cta-eyb">Download on iOS</div>
+              <div className="cta-eyb">Free on iOS</div>
               <h2>Train here.<br />For free.</h2>
               <p>Find every outdoor calisthenics spot near you. Check in, log sessions, connect with your crew.</p>
               <a href={APP_STORE} className="cta-btn" target="_blank" rel="noreferrer">Download CaliSpot</a>
@@ -517,6 +530,7 @@ export default function SpotPage() {
       {/* FULLSCREEN IMAGE */}
       {activeImg !== null && spot && (
         <div className="overlay" onClick={() => setActiveImg(null)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          <button className="overlay-close" onClick={e => { e.stopPropagation(); setActiveImg(null); }}>✕</button>
           <button className="overlay-arrow" style={{ left:0 }} onClick={e => { e.stopPropagation(); setActiveImg(p => p === 0 ? spot.images.length-1 : p-1); }}>‹</button>
           <img src={`${IMG_BASE}${spot.images[activeImg]}`} alt="" onClick={e => e.stopPropagation()} />
           <button className="overlay-arrow" style={{ right:0 }} onClick={e => { e.stopPropagation(); setActiveImg(p => p === spot.images.length-1 ? 0 : p+1); }}>›</button>
@@ -528,8 +542,6 @@ export default function SpotPage() {
           <Link href="/privacy">Privacy Policy</Link>
           <a href="mailto:8mindltd@gmail.com">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
-          <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
-          <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
         <div className="f-copy">© 2026 Tyrese Bewry · 8MIND LTD</div>
       </footer>
