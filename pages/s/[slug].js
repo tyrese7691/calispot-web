@@ -349,7 +349,7 @@ export default function SpotPage() {
                 <div className="app-bar-sub">Check in · See who&apos;s here · Log session</div>
               </div>
             </div>
-            <a href={`calispot://s/${spot.slug}`} className="app-bar-btn">Open App</a>
+            <a href={`calispot://s/${spot.slug}`} className="app-bar-btn">Open in App</a>
           </div>
 
           <div className="body">
@@ -516,7 +516,7 @@ export default function SpotPage() {
 
             {/* CTA */}
             <div className="cta">
-              <div className="cta-eyb">Free on iOS</div>
+              <div className="cta-eyb">Download on iOS</div>
               <h2>Train here.<br />For free.</h2>
               <p>Find every outdoor calisthenics spot near you. Check in, log sessions, connect with your crew.</p>
               <a href={APP_STORE} className="cta-btn" target="_blank" rel="noreferrer">Download CaliSpot</a>
