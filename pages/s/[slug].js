@@ -118,7 +118,7 @@ export default function SpotPage() {
 
 
   const title   = spot ? `${spot.name} — CaliSpot` : "CaliSpot";
-  const desc    = spot ? `Outdoor calisthenics spot. Equipment, photos and directions — free on CaliSpot.` : "Find outdoor calisthenics spots near you.";
+  const desc    = spot ? `Outdoor calisthenics spot. Equipment, photos and directions - free on CaliSpot.` : "Find outdoor calisthenics spots near you.";
   const ogImage = spot?.images?.[0] ? `${IMG_BASE}${spot.images[0]}` : "/images/calilogobg.png";
 
   return (
@@ -171,7 +171,7 @@ export default function SpotPage() {
         .hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
         .hero-meta-item{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--wm);display:flex;align-items:center;gap:6px}
         .hero-meta-item::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--wm)}
-        .hero-dots{position:absolute;bottom:100px;right:40px;z-index:3;display:flex;gap:6px;align-items:center}
+        .hero-dots{display:flex;gap:6px;align-items:center;margin-left:auto}
         .hero-dot-btn{height:6px;border-radius:3px;border:none;cursor:pointer;padding:0;transition:all .3s;background:rgba(255,255,255,.3)}
 
         .app-bar{margin:24px 40px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.15);border-radius:18px;padding:14px 20px}
@@ -279,7 +279,6 @@ export default function SpotPage() {
           .nav,.app-bar,.body,footer{padding-left:20px;padding-right:20px}
           .hero-content{padding-left:20px;padding-right:20px}
           .app-bar{margin-left:20px;margin-right:20px}
-          .hero-dots{right:20px}
           .cta{padding:44px 24px}
           .stat-grid{grid-template-columns:1fr}
         }
@@ -291,7 +290,7 @@ export default function SpotPage() {
           <img src="/images/calilogobg.png" alt="CaliSpot" />
           <span>CaliSpot</span>
         </Link>
-        <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">Free on iOS</a>
+        <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">Download on iOS</a>
       </nav>
 
       {loading && (
@@ -319,23 +318,23 @@ export default function SpotPage() {
                 <img key={heroIdx} src={`${IMG_BASE}${spot.images[heroIdx]}`} alt={spot.name} />
               </div>
             )}
-            {spot.images?.length > 1 && (
-              <div className="hero-dots">
-                {spot.images.map((_, i) => (
-                  <button
-                    key={i}
-                    className="hero-dot-btn"
-                    onClick={() => { setHeroIdx(i); clearInterval(heroTimer.current); }}
-                    style={{ width: i === heroIdx ? 20 : 6, background: i === heroIdx ? "#F5C842" : "rgba(255,255,255,.3)" }}
-                  />
-                ))}
-              </div>
-            )}
             <div className="hero-grad" />
             <div className="hero-content">
               <h1 className="hero-title fu2">{spot.name}</h1>
               <div className="hero-meta fu3">
                 {spot.nearestTrainStation && <div className="hero-meta-item">{spot.nearestTrainStation}</div>}
+                {spot.images?.length > 1 && (
+                  <div className="hero-dots">
+                    {spot.images.map((_, i) => (
+                      <button
+                        key={i}
+                        className="hero-dot-btn"
+                        onClick={() => { setHeroIdx(i); clearInterval(heroTimer.current); }}
+                        style={{ width: i === heroIdx ? 20 : 6, background: i === heroIdx ? "#F5C842" : "rgba(255,255,255,.3)" }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
