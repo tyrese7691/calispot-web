@@ -454,7 +454,7 @@ export default function SpotPage() {
                     return (
                       <a
                         key={ev.id}
-                        href={ev.join_url || APP_STORE}
+                        href={`/event/${ev.id}`}
                         className="event-card"
                         target="_blank"
                         rel="noreferrer"
