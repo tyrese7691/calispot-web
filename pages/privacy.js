@@ -27,9 +27,9 @@ export default function Privacy() {
         body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden;min-height:100vh}
 
         /* NAV — same as index */
-        nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;border-bottom:1px solid var(--bd);background:rgba(13,13,13,.95);backdrop-filter:blur(24px);position:sticky;top:0;z-index:900}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;border-bottom:1px solid var(--bd);background:rgba(10,10,10,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);position:sticky;top:0;z-index:900}
         .nl{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .nl-logo{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#fff;flex-shrink:0}
+        .nl-logo{width:51px;height:51px;border-radius:50%;overflow:hidden;background:#fff;flex-shrink:0}
         .nl-logo img{width:100%;height:100%;object-fit:cover;display:block}
         .nl-name{font-size:1rem;font-weight:800;letter-spacing:-.02em;color:var(--w)}
         .nbtn{display:inline-flex;align-items:center;gap:6px;background:var(--y);color:#0d0d0d;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.6rem 1.4rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
@@ -85,7 +85,6 @@ export default function Privacy() {
       <nav>
         <Link href="/" className="nl">
           <div className="nl-logo"><img src="/images/calilogobg.png" alt="CaliSpot" /></div>
-          <span className="nl-name">CaliSpot</span>
         </Link>
         <a href="https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360" className="nbtn" target="_blank" rel="noreferrer">
           Download on iOS

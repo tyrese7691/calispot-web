@@ -153,9 +153,9 @@ export default function SpotPage() {
         html{scroll-behavior:smooth}
         body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden;min-height:100vh}
 
-        .nav{position:sticky;top:0;z-index:800;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
+        .nav{position:sticky;top:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;background:rgba(10,10,10,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd)}
         .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .nav-logo img{width:50px;height:50px;border-radius:50%}
+        .nav-logo img{width:51px;height:51px;border-radius:50%}
         .nav-logo span{font-size:2rem;font-weight:800;color:var(--w)}
         .nav-dl{display:inline-flex;align-items:center;gap:6px;background:var(--y);color:#000;font-size:.7rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;padding:.55rem 1.3rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
         .nav-dl:hover{transform:scale(1.04);box-shadow:0 0 24px rgba(245,200,66,.45)}
@@ -288,7 +288,6 @@ export default function SpotPage() {
       <nav className="nav">
         <Link href="/" className="nav-logo">
           <img src="/images/calilogobg.png" alt="CaliSpot" />
-          <span>CaliSpot</span>
         </Link>
         <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">Download on iOS</a>
       </nav>
@@ -504,10 +503,21 @@ export default function SpotPage() {
                     width="100%"
                     height="100%"
                     style={{ border: 0, display: "block" }}
-                    loading="lazy"
-                    allowFullScreen
-                    referrerPolicy="no-referrer-when-downgrade"
-                    src={`https://www.google.com/maps?q=${spot.lat},${spot.lng}&z=15&output=embed`}
+                    srcDoc={`<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+<style>html,body,#m{margin:0;width:100%;height:100%}</style>
+</head><body>
+<div id="m"></div>
+<script>
+var map=L.map('m',{zoomControl:true,attributionControl:false}).setView([${spot.lat},${spot.lng}],15);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+var icon=L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#F5C842;border:2px solid #0a0a0a;border-radius:50%;box-shadow:0 0 8px rgba(245,200,66,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]});
+L.marker([${spot.lat},${spot.lng}],{icon:icon}).addTo(map).bindPopup('<b>${spot.name.replace(/'/g, "\\'")}</b>');
+<\/script>
+</body></html>`}
                   />
                 </div>
               </>
@@ -541,6 +551,8 @@ export default function SpotPage() {
           <Link href="/privacy">Privacy Policy</Link>
           <a href="mailto:8mindltd@gmail.com">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
+          <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
         <div className="f-copy">© 2026 Tyrese Bewry · 8MIND LTD</div>
       </footer>

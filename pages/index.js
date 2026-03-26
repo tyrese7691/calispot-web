@@ -1,454 +1,694 @@
-import { useEffect, useRef } from "react";
+// pages/index.js
+// CaliSpot — Discovery landing page
+// Spots map + list, events, trainers, Android waitlist, conversion CTAs
+
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 
-const SC = {
-  spotDetail: "/screenshots/screen-spot-detail.png",
-  map:        "/screenshots/screen-map.png",
-  events:     "/screenshots/screen-events.png",
-  people:     "/screenshots/screen-people.png",
-  video:      "/screenshots/app-demo.mov",
+const APP_STORE    = "https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360";
+const SUPABASE_URL = "https://nrfwyewylurdmsnxycwz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yZnd5ZXd5bHVyZG1zbnh5Y3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTc4MTIsImV4cCI6MjA4NzA5MzgxMn0.QJCdBm0Fa3xX1TsOJ5bLEodKpcgGjniz8vEM-_RA8wc";
+const IMG_BASE     = "https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/images/";
+const FONTS        = "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800;12..96,900&family=DM+Mono:wght@400;500&display=swap";
+
+const EQ_LABELS = {
+  abs: "Abs", dipBars: "Dip Bars", lowBars: "Low Bars",
+  monkeyBars: "Monkey Bars", pullUpBars: "Pull-Up Bars",
 };
-const APP_STORE = "https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360";
-const FONTS = "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800;12..96,900&family=DM+Mono:wght@400;500&display=swap";
 
-const AppleIcon = ({ s = 15 }) => (
-  <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-  </svg>
-);
-
-function Phone({ src, alt = "App screenshot", width = 248, tilt = 0, extraStyle = {} }) {
-  const h  = Math.round(width * 2.169);
-  const r  = Math.round(width * 0.168);
-  const iw = Math.round(width * 0.292);
-  const ih = Math.round(width * 0.073);
-  const it = Math.round(width * 0.031);
-  return (
-    <div style={{ width, height: h, position: "relative", flexShrink: 0, transform: `rotate(${tilt}deg)`, ...extraStyle }}>
-      <div style={{ position:"absolute",inset:0,background:"linear-gradient(160deg,#2e2e2e,#0a0a0a)",borderRadius:r,border:"1.5px solid rgba(255,255,255,.11)",overflow:"hidden",boxShadow:"0 0 0 1px rgba(0,0,0,.85),0 50px 100px rgba(0,0,0,.95),0 0 70px rgba(245,200,66,.06)" }}>
-        <div style={{ position:"absolute",top:it,left:"50%",transform:"translateX(-50%)",width:iw,height:ih,background:"#000",borderRadius:ih,zIndex:10,pointerEvents:"none" }} />
-        {src
-          ? <img src={src} alt={alt} style={{ position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"top center",display:"block" }} />
-          : <div style={{ position:"absolute",inset:0,background:"#111",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,.1)",fontSize:"2rem" }}>📱</div>
-        }
-      </div>
-    </div>
-  );
+/* ─── Waitlist submit helper ─────────────────────────────────────────────── */
+async function submitWaitlist(email) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/android_waitlist`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    if (txt.includes("duplicate") || txt.includes("unique")) {
+      return { ok: true, duplicate: true };
+    }
+    throw new Error("Failed to submit");
+  }
+  return { ok: true };
 }
 
+/* ─── Component ──────────────────────────────────────────────────────────── */
 export default function Home() {
-  const rNav = useRef(null);
-  const rSs  = useRef(null);
-  const rSph = useRef(null);
-  const rP   = [useRef(null), useRef(null), useRef(null), useRef(null)];
-  const rPb  = [useRef(null), useRef(null), useRef(null), useRef(null)];
-  const rDs  = [useRef(null), useRef(null), useRef(null), useRef(null)];
-  const rLbl = [useRef(null), useRef(null), useRef(null), useRef(null)];
-  const rCc  = useRef(null);
+  const [spots, setSpots]           = useState([]);
+  const [events, setEvents]         = useState([]);
+  const [trainers, setTrainers]     = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [view, setView]             = useState("map"); // "map" | "list"
+  const [searchQ, setSearchQ]       = useState("");
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistStatus, setWaitlistStatus] = useState("idle"); // idle | sending | done | error
+  const [mobileMenu, setMobileMenu] = useState(false);
 
+  /* ── Fetch spots ─────────────────────────────────────────────────────── */
   useEffect(() => {
-    // Scroll reveal
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-    }, { threshold: 0.07 });
-    document.querySelectorAll(".rv").forEach(el => io.observe(el));
+    fetch(`${SUPABASE_URL}/storage/v1/object/public/spots/spots.json`, { cache: "no-store" })
+      .then(r => r.json())
+      .then(data => {
+        setSpots(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
-    const cl = (v,a,b) => Math.max(a, Math.min(b, v));
-    const lr = (a,b,t) => a + (b-a)*t;
-    const pg = (s,a,b) => cl((s-a)/(b-a), 0, 1);
-    const e3 = t => 1-Math.pow(1-t,3);
+  /* ── Fetch events ────────────────────────────────────────────────────── */
+  useEffect(() => {
+    const now = new Date().toISOString();
+    fetch(
+      `${SUPABASE_URL}/rest/v1/events?event_date=gte.${now}&order=event_date.asc&limit=12&select=id,title,event_date,location_name,is_free,price,join_url,organiser_name,spot_slug`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    )
+      .then(r => r.json())
+      .then(data => setEvents(Array.isArray(data) ? data : []))
+      .catch(() => setEvents([]));
+  }, []);
 
-    let sy = 0;
-    window.addEventListener("scroll", () => { sy = window.scrollY; }, { passive:true });
-
-    // CTA entrance
-    const cc = rCc.current;
-    cc.style.transform = "translateY(52px)"; cc.style.opacity = "0";
-    const ccio = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          cc.style.transition = "transform .95s cubic-bezier(.16,1,.3,1),opacity .95s ease,box-shadow .95s ease";
-          cc.style.transform  = "translateY(0)"; cc.style.opacity = "1";
-          cc.style.boxShadow  = "0 48px 120px rgba(245,200,66,.22)";
+  /* ── Extract trainers from spots ─────────────────────────────────────── */
+  useEffect(() => {
+    if (!spots.length) return;
+    const map = new Map();
+    spots.forEach(s => {
+      const pts = s.sponsoredPTs?.length ? s.sponsoredPTs : s.sponsoredPT ? [s.sponsoredPT] : [];
+      pts.forEach(pt => {
+        if (pt.name && !map.has(pt.name)) {
+          map.set(pt.name, { ...pt, spotName: s.name, spotSlug: s.slug });
         }
       });
-    }, { threshold:.12 });
-    ccio.observe(cc);
+    });
+    setTrainers(Array.from(map.values()));
+  }, [spots]);
 
-    let raf;
-    const panels = rP.map(r => r.current);
-    const pbs    = rPb.map(r => r.current);
-    const dscrs  = rDs.map(r => r.current);
-    const lbls   = rLbl.map(r => r.current);
+  /* ── Filtered spots ──────────────────────────────────────────────────── */
+  const filtered = spots.filter(s =>
+    !searchQ || s.name?.toLowerCase().includes(searchQ.toLowerCase()) ||
+    s.nearestTrainStation?.toLowerCase().includes(searchQ.toLowerCase())
+  );
 
-    function tick() {
-      const vh = window.innerHeight;
-      rNav.current.classList.toggle("sc", sy > 60);
-
-      // Story section
-      const ssT = rSs.current.offsetTop;
-      const sdp = pg(sy, ssT, ssT + rSs.current.offsetHeight - vh);
-      for (let i = 0; i < 4; i++) {
-        const pp = pg(sdp, i/4, (i+1)/4);
-        let op = 1;
-        if (pp < 0.18) op = pp/0.18;
-        else if (pp > 0.82) op = 1-(pp-0.82)/0.18;
-        panels[i].style.opacity   = op.toFixed(3);
-        panels[i].style.transform = `translateY(${lr(28,-28,e3(pp))}px)`;
-        pbs[i].style.height       = (cl(pp/0.85,0,1)*100)+"%";
-        // Label fades + slides in sync with progress bar
-        lbls[i].style.opacity   = op.toFixed(3);
-        lbls[i].style.transform = `translateX(${(1 - op) * -8}px)`;
-        if (pp > 0.12 && pp < 0.92) {
-          dscrs[i].style.opacity = "1";
-          dscrs.forEach((d,j) => { if (j!==i) d.style.opacity="0"; });
-        }
-      }
-      rSph.current.style.transform = `translateY(${Math.sin(sdp*Math.PI*3)*7}px)`;
-      raf = requestAnimationFrame(tick);
+  /* ── Waitlist submit ─────────────────────────────────────────────────── */
+  const handleWaitlist = async (e) => {
+    e.preventDefault();
+    if (!waitlistEmail || waitlistStatus === "sending") return;
+    setWaitlistStatus("sending");
+    try {
+      await submitWaitlist(waitlistEmail);
+      setWaitlistStatus("done");
+      setWaitlistEmail("");
+    } catch {
+      setWaitlistStatus("error");
     }
-    raf = requestAnimationFrame(tick);
+  };
 
-    return () => {
-      cancelAnimationFrame(raf);
-      io.disconnect(); ccio.disconnect();
-    };
-  }, []);
+  /* ── Smooth scroll ───────────────────────────────────────────────────── */
+  const scrollTo = (id) => {
+    setMobileMenu(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  /* ── Stats ───────────────────────────────────────────────────────────── */
+  const totalSpots = spots.length;
+  const totalEquipment = spots.reduce((a, s) => a + (s.equipment?.length || 0), 0);
 
   return (
     <>
-<Head>
-
-  <title>CaliSpot</title>
-
-
-  <meta
-    name="description"
-    content="Every outdoor calisthenics park in London, mapped and rated. Real photos. Live check-ins. Zero ads."
-  />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-  <link href={FONTS} rel="stylesheet" />
-<link rel="icon" href="/images/calilogobg.png" />
-</Head>
-
+      <Head>
+        <title>CaliSpot — Find Outdoor Calisthenics Spots Near You</title>
+        <meta name="description" content="Discover the best outdoor calisthenics parks and workout spots. Browse locations, upcoming events, and connect with trainers. Free on iOS." />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:title" content="CaliSpot — Find Outdoor Calisthenics Spots" />
+        <meta property="og:description" content="Discover calisthenics parks, browse events, and connect with trainers near you." />
+        <meta property="og:image" content="https://www.calispot.xyz/og-image.png" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.calispot.xyz" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="icon" href="/images/calilogobg.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        <link href={FONTS} rel="stylesheet" />
+      </Head>
 
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         :root{
-          --y:#F5C842;--g:#3DFF8F;--bg:#0d0d0d;--card:#141414;
-          --w:rgba(255,255,255,.92);--wm:rgba(255,255,255,.44);
-          --wd:rgba(255,255,255,.12);--bd:rgba(255,255,255,.07);
-          --font:'Bricolage Grotesque',sans-serif;
-          --mono:'DM Mono',monospace;
+          --y:#F5C842;--g:#3DFF8F;--bg:#0a0a0a;--bg2:#111;--card:#141414;
+          --bd:rgba(255,255,255,.07);--w:rgba(255,255,255,.92);--wm:rgba(255,255,255,.4);
+          --font:'Bricolage Grotesque',sans-serif;--mono:'DM Mono',monospace;
         }
         html{scroll-behavior:smooth}
-        body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden}
+        body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden;min-height:100vh}
 
-        /* NAV */
-        nav{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
-        nav.sc{background:rgba(13,13,13,.95);backdrop-filter:blur(24px);border-color:var(--bd)}
-        .nl{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .nl-logo{width:50px;height:50px;border-radius:50%;overflow:hidden;background:#fff;flex-shrink:0}
-        .nl-logo img{width:100%;height:100%;object-fit:cover;display:block}
-        .nl-name{font-size:2rem;font-weight:800;letter-spacing:-.02em;color:var(--w)}
-        .nbtn{display:inline-flex;align-items:center;gap:6px;background:var(--y);color:#0d0d0d;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.6rem 1.4rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
-        .nbtn:hover{transform:scale(1.05);box-shadow:0 0 32px rgba(245,200,66,.55)}
+        /* ── NAV ────────────────────────────────────────────────────────── */
+        .nav{position:sticky;top:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;background:rgba(10,10,10,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd)}
+        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+        .nav-logo img{width:51px;height:51px;border-radius:50%}
+        .nav-logo span{font-size:1rem;font-weight:800;letter-spacing:-.02em;color:var(--w)}
+        .nav-links{display:flex;align-items:center;gap:28px}
+        .nav-link{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--wm);text-decoration:none;cursor:pointer;transition:color .2s;background:none;border:none;padding:0}
+        .nav-link:hover{color:var(--w)}
+        .nav-dl{display:inline-flex;align-items:center;gap:6px;background:var(--y);color:#0a0a0a;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.55rem 1.3rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s;white-space:nowrap}
+        .nav-dl:hover{transform:scale(1.04);box-shadow:0 0 24px rgba(245,200,66,.45)}
+        .nav-hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px}
+        .nav-hamburger span{display:block;width:22px;height:2px;background:var(--w);margin:5px 0;transition:all .3s}
 
-        /* HERO — static full-height, text centred, marquee pinned to bottom */
-        .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 0;position:relative;overflow:hidden}
-        .hbg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 48%,rgba(245,200,66,.06) 0%,transparent 70%);pointer-events:none}
-        .hgrd{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.024) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.024) 1px,transparent 1px);background-size:88px 88px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,#000 10%,transparent 75%)}
-        .htx{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
-        .heyb{font-family:var(--mono);font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--y);margin-bottom:1.6rem;opacity:0;transform:translateY(14px);animation:fu .6s .1s ease forwards}
-        .hh1{font-size:clamp(4.5rem,12vw,13rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;opacity:0;transform:translateY(22px);animation:fu .8s .22s ease forwards}
-        .hh1 .yr{color:var(--y);position:relative}
-        .hh1 .yr::after{content:'';position:absolute;left:0;right:0;bottom:.1em;height:.06em;background:var(--y);border-radius:2px}
-        .hsub{margin-top:1.8rem;font-size:clamp(.95rem,1.8vw,1.15rem);font-weight:400;line-height:1.7;color:var(--wm);max-width:440px;opacity:0;transform:translateY(12px);animation:fu .7s .38s ease forwards}
-        .hact{display:flex;gap:.9rem;margin-top:2.4rem;opacity:0;transform:translateY(10px);animation:fu .7s .52s ease forwards}
-        .bpri{display:inline-flex;align-items:center;gap:7px;background:var(--y);color:#0d0d0d;font-size:.8rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.95rem 2rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
-        .bpri:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(245,200,66,.45)}
-        .bgho{display:inline-flex;align-items:center;color:var(--wm);font-size:.8rem;font-weight:500;padding:.95rem 1.5rem;border-radius:50px;text-decoration:none;border:1px solid var(--bd);transition:color .2s,border-color .2s}
-        .bgho:hover{color:var(--w);border-color:var(--wd)}
+        /* ── MOBILE MENU ───────────────────────────────────────────────── */
+        .mobile-menu{display:none;position:fixed;inset:0;top:68px;background:rgba(10,10,10,.98);backdrop-filter:blur(24px);z-index:899;padding:32px 24px;flex-direction:column;gap:24px}
+        .mobile-menu.open{display:flex}
+        .mobile-menu .nav-link{font-size:.85rem;letter-spacing:.1em;color:var(--w)}
+        .mobile-menu .nav-dl{text-align:center;justify-content:center;padding:.75rem 1.5rem;font-size:.8rem;width:100%}
 
-        /* MARQUEE — pinned to bottom of hero */
-        .mq{width:100%;overflow:hidden;padding:24px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);position:absolute;bottom:0;left:0;right:0}
-        .mqt{display:flex;width:max-content;animation:mq 24s linear infinite}
-        .mqt span{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.09);padding-right:2.5rem;white-space:nowrap}
-        .mqt span em{font-style:normal;color:rgba(245,200,66,.38)}
+        /* ── HERO ───────────────────────────────────────────────────────── */
+        .hero{position:relative;padding:100px 48px 80px;overflow:hidden;min-height:min(85vh,700px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+        .hero-glow{position:absolute;top:-40%;left:-10%;width:60%;height:120%;background:radial-gradient(ellipse at center,rgba(245,200,66,.06) 0%,transparent 70%);pointer-events:none}
+        .hero-glow2{position:absolute;bottom:-30%;right:-10%;width:50%;height:100%;background:radial-gradient(ellipse at center,rgba(61,255,143,.03) 0%,transparent 70%);pointer-events:none}
+        .hero-eyb{font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:20px;display:flex;align-items:center;gap:10px;position:relative;justify-content:center}
+        .hero-eyb::before{content:'';width:28px;height:1px;background:var(--y);flex-shrink:0}
+        .hero-title{font-size:clamp(3rem,8vw,7rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:900px;text-align:center}
+        .hero-title .accent{color:var(--y)}
+        .hero-sub{font-size:clamp(.95rem,2vw,1.15rem);color:var(--wm);line-height:1.7;max-width:520px;margin-bottom:36px;position:relative;text-align:center}
+        .hero-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:relative;justify-content:center}
+        .hero-btn{display:inline-flex;align-items:center;gap:8px;background:var(--y);color:#0a0a0a;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.95rem 2rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+        .hero-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,200,66,.35)}
+        .hero-btn-sec{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid var(--bd);color:var(--w);font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.95rem 2rem;border-radius:50px;text-decoration:none;transition:all .2s;cursor:pointer}
+        .hero-btn-sec:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15)}
+        .hero-stats{display:flex;gap:32px;margin-top:48px;position:relative;justify-content:center}
+        .hero-stat-num{font-size:2.4rem;font-weight:900;letter-spacing:-.03em;color:var(--y);line-height:1}
+        .hero-stat-label{font-family:var(--mono);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--wm);margin-top:4px}
 
-        /* VIDEO — smaller centred phone frame */
-        .vid-outer{padding:80px 48px 100px;max-width:340px;margin:0 auto}
-        .vid-eyb{font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:28px;text-align:center}
-        .vid-frame{position:relative;border-radius:38px;overflow:hidden;background:#000;aspect-ratio:922/2000;box-shadow:0 0 0 1px var(--bd),0 40px 80px rgba(0,0,0,.9),0 0 80px rgba(245,200,66,.1)}
-        .vid-frame video{width:100%;height:100%;object-fit:cover;display:block}
-        .vid-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 18%,transparent 72%,rgba(0,0,0,.6) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:22px;pointer-events:none}
-        .vid-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(61,255,143,.1);border:1px solid rgba(61,255,143,.3);border-radius:50px;padding:3px 9px;width:fit-content;margin-bottom:7px;font-family:var(--mono);font-size:.48rem;letter-spacing:.1em;color:var(--g)}
-        .vdot{width:5px;height:5px;border-radius:50%;background:var(--g);animation:bl 1.4s ease infinite}
-        .vid-cap{font-size:.9rem;font-weight:800;letter-spacing:-.02em;color:#fff}
+        /* ── SECTION COMMON ─────────────────────────────────────────────── */
+        .section{padding:80px 48px}
+        .sec-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);display:flex;align-items:center;gap:10px;margin-bottom:16px}
+        .sec-label::before{content:'';width:24px;height:1px;background:var(--y);flex-shrink:0}
+        .sec-title{font-size:clamp(2rem,5vw,3.8rem);font-weight:900;line-height:.92;letter-spacing:-.04em;color:#fff;margin-bottom:12px}
+        .sec-sub{font-size:.95rem;color:var(--wm);line-height:1.6;max-width:480px;margin-bottom:40px}
+        .divider{height:1px;background:var(--bd);margin:0 48px}
 
-        /* STORY */
-        #ss{position:relative;height:500vh}
-        #sst{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
-        .sph{position:relative;z-index:4;will-change:transform}
-        .spn{position:absolute;z-index:5;max-width:340px;will-change:transform,opacity}
-        .spn.lt{left:calc(50% - 490px)}
-        .spn.rt{right:calc(50% - 490px);text-align:right}
-        .pst{font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
-        .pst::before{content:'';width:24px;height:1px;background:var(--y);flex-shrink:0}
-        .spn.rt .pst{flex-direction:row-reverse}
-        .ph2{font-size:clamp(2.6rem,4.5vw,4.2rem);font-weight:900;line-height:.92;letter-spacing:-.04em;color:#fff}
-        .pp{margin-top:1.1rem;font-size:.9rem;font-weight:400;line-height:1.75;color:var(--wm)}
-        .spbr{position:absolute;left:48px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:6}
-        .spbt{width:2px;height:48px;background:var(--bd);border-radius:1px;overflow:hidden}
-        .spbf{width:100%;background:var(--y);border-radius:1px;height:0%}
-        .spbl{position:absolute;left:calc(48px + 14px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:6}
-        .spbl-item{height:48px;display:flex;align-items:center;will-change:transform,opacity;transition:none}
-        .spbl-item span{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);white-space:nowrap;line-height:1}
-        .dscr{position:absolute;inset:0;transition:opacity .55s ease}
+        /* ── SPOTS SECTION ──────────────────────────────────────────────── */
+        .spots-controls{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+        .spots-search{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:12px 16px;color:var(--w);font-family:var(--font);font-size:.88rem;outline:none;transition:border-color .2s}
+        .spots-search::placeholder{color:rgba(255,255,255,.2)}
+        .spots-search:focus{border-color:rgba(245,200,66,.3)}
+        .view-toggle{display:flex;border:1px solid var(--bd);border-radius:10px;overflow:hidden;flex-shrink:0}
+        .view-btn{background:transparent;border:none;color:var(--wm);font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:10px 16px;cursor:pointer;transition:all .2s}
+        .view-btn.active{background:rgba(245,200,66,.1);color:var(--y)}
 
-        /* FEATURES */
-        .fsec{padding:160px 48px;max-width:1200px;margin:0 auto}
-        .sey{font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:1.2rem}
-        .stit{font-size:clamp(3.2rem,7vw,8rem);font-weight:900;line-height:.88;letter-spacing:-.04em}
-        .stit .gl{color:var(--g)}
-        .fg{margin-top:80px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:28px;overflow:hidden}
-        .fc{background:var(--bg);padding:3rem 2.5rem;position:relative;overflow:hidden;transition:background .25s}
-        .fc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--y),var(--g));transform:scaleX(0);transform-origin:left;transition:transform .4s ease}
-        .fc:hover{background:var(--card)}
-        .fc:hover::after{transform:scaleX(1)}
-        .fn{font-size:4rem;font-weight:900;color:rgba(245,200,66,.05);line-height:1;margin-bottom:1.2rem}
-        .fi{font-size:1.5rem;margin-bottom:1rem}
-        .ft{font-size:1.05rem;font-weight:800;letter-spacing:-.025em;color:#fff;margin-bottom:.6rem}
-        .fd{font-size:.84rem;font-weight:400;color:var(--wm);line-height:1.7}
+        .map-container{width:100%;height:clamp(320px,50vh,520px);border-radius:20px;overflow:hidden;border:1px solid var(--bd);margin-bottom:24px;background:var(--bg2)}
+        .map-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--wm);font-size:.85rem}
 
-        /* STATS */
-        .str{padding:120px 48px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);display:flex;justify-content:center;flex-wrap:wrap}
-        .sti{flex:1;min-width:200px;text-align:center;padding:0 40px;position:relative}
-        .sti+.sti::before{content:'';position:absolute;left:0;top:15%;bottom:15%;width:1px;background:var(--bd)}
-        .stv{font-size:clamp(5rem,13vw,11rem);font-weight:900;line-height:.9;letter-spacing:-.04em;color:var(--y)}
-        .stl{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--wm);margin-top:.7rem}
+        .spot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+        .spot-card{background:var(--bg2);border:1px solid var(--bd);border-radius:18px;overflow:hidden;transition:border-color .3s,transform .3s;text-decoration:none;display:block}
+        .spot-card:hover{border-color:rgba(245,200,66,.3);transform:translateY(-3px)}
+        .spot-card-img{width:100%;height:160px;object-fit:cover;display:block;background:#1a1a1a}
+        .spot-card-body{padding:16px}
+        .spot-card-name{font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px}
+        .spot-card-loc{font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--wm);margin-bottom:10px;display:flex;align-items:center;gap:4px}
+        .spot-card-eq{display:flex;gap:6px;flex-wrap:wrap}
+        .spot-card-eq span{font-family:var(--mono);font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.05);color:var(--wm);border:1px solid var(--bd)}
+        .spot-card-activity{font-family:var(--mono);font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--g);margin-top:10px;display:flex;align-items:center;gap:5px}
+        .spot-card-activity::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s infinite}
 
-        /* VALUES */
-        .vsec{padding:0 48px 160px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-        .vl{list-style:none;margin-top:2.2rem;display:flex;flex-direction:column;gap:1.1rem}
-        .vl li{display:flex;align-items:flex-start;gap:.9rem;font-size:.92rem;font-weight:400;color:rgba(255,255,255,.55);line-height:1.6}
-        .vck{width:20px;height:20px;min-width:20px;border-radius:50%;background:rgba(61,255,143,.07);border:1px solid rgba(61,255,143,.22);display:flex;align-items:center;justify-content:center;font-size:.58rem;color:var(--g);margin-top:1px;flex-shrink:0}
-        .vbig{text-align:center}
-        .vnum{font-size:clamp(7rem,16vw,15rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:var(--y);display:block}
-        .vnum2{font-size:clamp(4rem,9vw,9rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:var(--g);margin-top:1.5rem;display:block}
-        .vnl{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--wm);margin-top:.5rem;display:block}
+        .spot-cta{text-align:center;margin-top:28px}
+        .spot-cta-link{display:inline-flex;align-items:center;gap:8px;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.2);color:var(--y);font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.75rem 1.8rem;border-radius:50px;text-decoration:none;transition:all .2s}
+        .spot-cta-link:hover{background:rgba(245,200,66,.15);transform:translateY(-1px)}
 
-        /* CTA */
-        .csec{padding:0 48px 100px;max-width:1200px;margin:0 auto}
-        .cc{position:relative;overflow:hidden;background:var(--y);border-radius:36px;padding:90px 60px;text-align:center;will-change:transform}
-        .cc::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 15% 40%,rgba(255,255,255,.16) 0%,transparent 45%),radial-gradient(circle at 85% 70%,rgba(255,255,255,.08) 0%,transparent 40%)}
-        .cc-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(10rem,28vw,26rem);font-weight:900;letter-spacing:-.05em;line-height:1;color:rgba(0,0,0,.05);white-space:nowrap;pointer-events:none;user-select:none}
-        .ch2{font-size:clamp(3rem,8vw,8rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#0d0d0d;position:relative}
-        .cp{margin:1.4rem auto 2.8rem;font-size:1rem;font-weight:400;color:rgba(0,0,0,.5);max-width:400px;line-height:1.7;position:relative}
-        .cb{display:inline-flex;align-items:center;gap:.6rem;background:#0d0d0d;color:var(--y);font-size:.8rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:1.1rem 2.4rem;border-radius:50px;text-decoration:none;position:relative;transition:transform .2s,box-shadow .2s}
-        .cb:hover{transform:translateY(-3px);box-shadow:0 18px 50px rgba(0,0,0,.3)}
+        /* ── EVENTS ─────────────────────────────────────────────────────── */
+        .event-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+        .event-card{background:var(--bg2);border:1px solid var(--bd);border-radius:18px;padding:20px;display:flex;gap:16px;transition:border-color .3s,transform .3s;text-decoration:none}
+        .event-card:hover{border-color:rgba(245,200,66,.3);transform:translateY(-2px)}
+        .event-card.featured{border-color:rgba(245,200,66,.2);background:linear-gradient(135deg,rgba(245,200,66,.04),var(--bg2))}
+        .ev-date-box{background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.15);border-radius:14px;padding:10px 14px;text-align:center;flex-shrink:0;min-width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .ev-date-day{font-size:1.6rem;font-weight:900;color:var(--y);line-height:1}
+        .ev-date-mon{font-family:var(--mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--wm);margin-top:2px}
+        .ev-info{flex:1;min-width:0}
+        .ev-featured-badge{font-family:var(--mono);font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:#0a0a0a;background:var(--y);padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px;font-weight:700}
+        .ev-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .ev-meta{font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--wm);line-height:1.6}
+        .ev-badge{font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .7rem;border-radius:50px;flex-shrink:0;align-self:flex-start;margin-top:2px}
+        .ev-badge.free{background:rgba(61,255,143,.08);color:var(--g);border:1px solid rgba(61,255,143,.2)}
+        .ev-badge.paid{background:rgba(255,255,255,.05);color:var(--wm);border:1px solid var(--bd)}
+        .ev-app-prompt{margin-top:28px;text-align:center;padding:20px;background:rgba(245,200,66,.04);border:1px solid rgba(245,200,66,.12);border-radius:16px}
+        .ev-app-prompt p{font-size:.85rem;color:var(--wm);margin-bottom:12px}
 
-        /* FOOTER */
-        footer{border-top:1px solid var(--bd);padding:40px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
-        .flk{display:flex;gap:2rem;flex-wrap:wrap}
-        .flk a{font-family:var(--mono);font-size:.65rem;color:rgba(255,255,255,.2);text-decoration:underline;text-underline-offset:3px;transition:color .2s}
-        .flk a:hover{color:var(--wm)}
-        .fcp{font-family:var(--mono);font-size:.58rem;color:rgba(255,255,255,.12)}
+        /* ── TRAINERS ──────────────────────────────────────────────────── */
+        .trainer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+        .trainer-card{background:var(--bg2);border:1px solid var(--bd);border-radius:18px;overflow:hidden;transition:border-color .3s,transform .3s}
+        .trainer-card:hover{border-color:rgba(245,200,66,.3);transform:translateY(-2px)}
+        .trainer-card-header{background:var(--y);padding:6px 16px;display:flex;align-items:center;gap:6px}
+        .trainer-card-header span{font-family:var(--mono);font-size:.52rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#000}
+        .trainer-card-body{padding:20px;display:flex;gap:16px;align-items:flex-start}
+        .trainer-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--bd);background:#1a1a1a}
+        .trainer-info{flex:1;min-width:0}
+        .trainer-name{font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:2px}
+        .trainer-spot{font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--wm);margin-bottom:8px}
+        .trainer-bio{font-size:.82rem;color:var(--wm);line-height:1.5;margin-bottom:12px}
+        .trainer-links{display:flex;gap:8px;flex-wrap:wrap}
+        .trainer-link{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:#000;background:var(--y);padding:.35rem .8rem;border-radius:50px;text-decoration:none;font-weight:700;transition:transform .2s}
+        .trainer-link:hover{transform:scale(1.04)}
 
-        /* REVEAL */
-        .rv{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s ease}
-        .rv.in{opacity:1;transform:translateY(0)}
-        .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+        /* ── ANDROID WAITLIST ──────────────────────────────────────────── */
+        .waitlist{background:var(--card);border:1px solid var(--bd);border-radius:24px;padding:48px;margin:80px 48px;text-align:center}
+        .waitlist-icon{font-size:2.4rem;margin-bottom:16px}
+        .waitlist h2{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;letter-spacing:-.03em;color:#fff;margin-bottom:8px}
+        .waitlist p{font-size:.9rem;color:var(--wm);margin-bottom:28px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6}
+        .waitlist-form{display:flex;gap:10px;max-width:440px;margin:0 auto;justify-content:center}
+        .waitlist-input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;color:var(--w);font-family:var(--font);font-size:.9rem;outline:none;transition:border-color .2s}
+        .waitlist-input::placeholder{color:rgba(255,255,255,.2)}
+        .waitlist-input:focus{border-color:rgba(245,200,66,.3)}
+        .waitlist-submit{background:var(--y);color:#0a0a0a;font-weight:800;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;padding:14px 24px;border-radius:12px;border:none;cursor:pointer;transition:transform .2s;white-space:nowrap}
+        .waitlist-submit:hover{transform:scale(1.04)}
+        .waitlist-submit:disabled{opacity:.5;cursor:default;transform:none}
+        .waitlist-done{color:var(--g);font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-top:12px}
+        .waitlist-error{color:#ff6b6b;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-top:12px}
 
-        @keyframes fu{to{opacity:1;transform:translateY(0)}}
-        @keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
-        @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        /* ── BOTTOM CTA ────────────────────────────────────────────────── */
+        .cta{position:relative;overflow:hidden;background:var(--y);border-radius:28px;padding:64px 48px;text-align:center;margin:0 48px 80px}
+        .cta-eyb{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,0,0,.45);margin-bottom:14px}
+        .cta h2{font-size:clamp(2.4rem,7vw,5rem);font-weight:900;letter-spacing:-.04em;line-height:.9;color:#0a0a0a;margin-bottom:16px}
+        .cta p{font-size:.92rem;color:rgba(0,0,0,.5);margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6}
+        .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#0a0a0a;color:var(--y);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1rem 2.2rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+        .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.25)}
+        .cta-sub{margin-top:14px;font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,0,0,.35)}
 
-        @media(max-width:1080px){
-          .spn,.spbl{display:none}
-          .fg{grid-template-columns:1fr 1fr}
-          .vsec{grid-template-columns:1fr}
-          nav,.fsec,.csec,.str,.vsec,.vid-outer{padding-left:24px;padding-right:24px}
-          footer{padding:32px 24px}
-          .hero{padding-left:24px;padding-right:24px}
+        /* ── FOOTER ────────────────────────────────────────────────────── */
+        footer{border-top:1px solid var(--bd);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+        .f-links{display:flex;gap:2rem;flex-wrap:wrap}
+        .f-links a{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:rgba(255,255,255,.18);text-decoration:underline;text-underline-offset:3px;transition:color .2s}
+        .f-links a:hover{color:var(--wm)}
+        .f-copy{font-family:var(--mono);font-size:.52rem;color:rgba(255,255,255,.1)}
+
+        /* ── ANIMATIONS ────────────────────────────────────────────────── */
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        .fu{animation:fadeUp .7s ease forwards}
+        .fu2{animation:fadeUp .7s .15s ease both}
+        .fu3{animation:fadeUp .7s .3s ease both}
+        .fu4{animation:fadeUp .7s .45s ease both}
+
+        /* ── RESPONSIVE ────────────────────────────────────────────────── */
+        @media(max-width:768px){
+          .nav{padding:0 20px}
+          .nav-links{display:none}
+          .nav-hamburger{display:block}
+          .hero{padding:72px 20px 60px;min-height:auto}
+          .hero-stats{gap:20px}
+          .hero-stat-num{font-size:1.8rem}
+          .section{padding:60px 20px}
+          .divider{margin:0 20px}
+          .spot-grid{grid-template-columns:1fr}
+          .event-grid{grid-template-columns:1fr}
+          .trainer-grid{grid-template-columns:1fr}
+          .waitlist{margin:60px 20px;padding:32px 20px}
+          .waitlist-form{flex-direction:column}
+          .waitlist-submit{width:100%}
+          .cta{margin:0 20px 60px;padding:44px 24px;border-radius:22px}
+          footer{padding:24px 20px}
+          .spots-controls{flex-direction:column;align-items:stretch}
+          .view-toggle{align-self:flex-start}
         }
-        @media(max-width:640px){
-          .fg{grid-template-columns:1fr}
-          .hact{flex-direction:column;align-items:center}
-          .cc{padding:60px 28px}
-          .sti+.sti::before{display:none}
+        @media(max-width:480px){
+          .hero-title{font-size:clamp(2.4rem,12vw,3.4rem)}
+          .hero-actions{flex-direction:column;align-items:stretch}
+          .hero-btn,.hero-btn-sec{justify-content:center;text-align:center}
+          .hero-stats{flex-direction:column;gap:12px}
+          .event-card{flex-direction:column;gap:12px}
+          .ev-date-box{flex-direction:row;gap:8px;padding:8px 14px}
+          .ev-date-day{font-size:1.1rem}
+        }
+        @media(min-width:1200px){
+          .nav,.hero,.section,.divider{max-width:1400px;margin-left:auto;margin-right:auto}
+          .waitlist,.cta{max-width:1300px;margin-left:auto;margin-right:auto}
+          footer{max-width:1400px;margin-left:auto;margin-right:auto}
         }
       `}</style>
 
-      {/* NAV */}
-      <nav ref={rNav}>
-        <a href="/" className="nl">
-          <div className="nl-logo"><img src="/images/calilogobg.png" alt="CaliSpot" /></div>
-          <span className="nl-name">CaliSpot</span>
-        </a>
-        <a href={APP_STORE} className="nbtn" target="_blank" rel="noreferrer">
-          Download on iOS
-        </a>
+      {/* ═══════════════════════ NAV ═══════════════════════════════════════ */}
+      <nav className="nav">
+        <Link href="/" className="nav-logo">
+          <img src="/images/calilogobg.png" alt="CaliSpot" />
+        </Link>
+        <div className="nav-links">
+          <button className="nav-link" onClick={() => scrollTo("spots")}>Spots</button>
+          <button className="nav-link" onClick={() => scrollTo("events")}>Events</button>
+          <button className="nav-link" onClick={() => scrollTo("trainers")}>Trainers</button>
+          <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">
+            Download on iOS
+          </a>
+        </div>
+        <button className="nav-hamburger" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
+          <span style={mobileMenu ? { transform: "rotate(45deg) translate(5px,5px)" } : {}} />
+          <span style={mobileMenu ? { opacity: 0 } : {}} />
+          <span style={mobileMenu ? { transform: "rotate(-45deg) translate(5px,-5px)" } : {}} />
+        </button>
       </nav>
 
-      {/* HERO — text + buttons, marquee pinned to bottom edge */}
-      <div className="hero">
-        <div className="hbg" />
-        <div className="hgrd" />
-        <div className="htx">
-          <p className="heyb">The Calisthenics Community App</p>
-          <h1 className="hh1">TRAIN <span className="yr">ANYWHERE</span></h1>
-          <p className="hsub">Every outdoor calisthenics park in London, mapped and rated. Real photos. Live check-ins. Zero ads.</p>
-          <div className="hact">
-            <a href={APP_STORE} className="bpri" target="_blank" rel="noreferrer">Download on iOS</a>
+      {/* Mobile menu */}
+      <div className={`mobile-menu ${mobileMenu ? "open" : ""}`}>
+        <button className="nav-link" onClick={() => scrollTo("spots")}>Spots</button>
+        <button className="nav-link" onClick={() => scrollTo("events")}>Events</button>
+        <button className="nav-link" onClick={() => scrollTo("trainers")}>Trainers</button>
+        <button className="nav-link" onClick={() => scrollTo("android")}>Android Waitlist</button>
+        <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">
+          Download on iOS
+        </a>
+      </div>
+
+      {/* ═══════════════════════ HERO ══════════════════════════════════════ */}
+      <section className="hero">
+        <div className="hero-glow" />
+        <div className="hero-glow2" />
+        <div className="hero-eyb fu">Find your next spot</div>
+        <h1 className="hero-title fu2">
+          Train<br />
+          <span className="accent">Anywhere.</span>
+        </h1>
+        <p className="hero-sub fu3">
+          Discover the best outdoor calisthenics parks near you. Browse spots,
+          find events, and connect with trainers — all for free.
+        </p>
+        <div className="hero-actions fu4">
+          <a href={APP_STORE} className="hero-btn" target="_blank" rel="noreferrer">
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            Download on iOS
+          </a>
+          <button className="hero-btn-sec" onClick={() => scrollTo("spots")}>
+            Browse Spots
+          </button>
+        </div>
+        {!loading && (
+          <div className="hero-stats fu4">
+            <div>
+              <div className="hero-stat-num">{totalSpots}</div>
+              <div className="hero-stat-label">Spots</div>
+            </div>
+            <div>
+              <div className="hero-stat-num">{totalEquipment}</div>
+              <div className="hero-stat-label">Equipment Stations</div>
+            </div>
+            <div>
+              <div className="hero-stat-num">{events.length}+</div>
+              <div className="hero-stat-label">Upcoming Events</div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <div className="divider" />
+
+      {/* ═══════════════════════ SPOTS ═════════════════════════════════════ */}
+      <section className="section" id="spots">
+        <div className="sec-label">Explore</div>
+        <h2 className="sec-title">Spots</h2>
+        <p className="sec-sub">
+          Every outdoor calisthenics park, mapped and rated. Find pull-up bars,
+          dip stations, and more near you.
+        </p>
+
+        <div className="spots-controls">
+          <input
+            type="text"
+            className="spots-search"
+            placeholder="Search spots by name or station…"
+            value={searchQ}
+            onChange={e => setSearchQ(e.target.value)}
+          />
+          <div className="view-toggle">
+            <button className={`view-btn ${view === "map" ? "active" : ""}`} onClick={() => setView("map")}>Map</button>
+            <button className={`view-btn ${view === "list" ? "active" : ""}`} onClick={() => setView("list")}>List</button>
           </div>
         </div>
-        <div className="mq">
-          <div className="mqt">
-            {[0,1].map(k => (
-              <span key={k}>FIND SPOTS <em>◆</em> TRAIN OUTSIDE <em>◆</em> NO ADS <em>◆</em> LIVE CHECK-INS <em>◆</em> GPS DIRECTIONS <em>◆</em> REAL PHOTOS <em>◆</em> FREE FOREVER <em>◆</em> EQUIPMENT RATINGS <em>◆</em> COMMUNITY EVENTS <em>◆</em>&nbsp;&nbsp;&nbsp;</span>
+
+        {view === "map" && (
+          <div className="map-container">
+            {!loading && filtered.length > 0 ? (
+              <iframe
+                title="All CaliSpot locations"
+                width="100%"
+                height="100%"
+                style={{ border: 0, display: "block" }}
+                srcDoc={`<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+<style>html,body,#m{margin:0;width:100%;height:100%}</style>
+</head><body>
+<div id="m"></div>
+<script>
+var spots=${JSON.stringify(filtered.filter(s=>s.lat&&s.lng).map(s=>({lat:s.lat,lng:s.lng,name:s.name,slug:s.slug,station:s.nearestTrainStation||""})))};
+var map=L.map('m',{zoomControl:true,attributionControl:false});
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+var icon=L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#F5C842;border:2px solid #0a0a0a;border-radius:50%;box-shadow:0 0 8px rgba(245,200,66,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]});
+var bounds=[];
+spots.forEach(function(s){
+  var m=L.marker([s.lat,s.lng],{icon:icon}).addTo(map);
+  m.bindPopup('<div style="font-family:-apple-system,sans-serif;min-width:140px"><b>'+s.name+'</b>'+(s.station?'<br><span style="font-size:11px;color:#666">📍 '+s.station+'</span>':'')+'<br><a href="/s/'+s.slug+'" target="_top" style="display:inline-block;margin-top:6px;background:#F5C842;color:#000;font-weight:700;font-size:11px;padding:5px 12px;border-radius:16px;text-decoration:none">View Spot</a></div>');
+  bounds.push([s.lat,s.lng]);
+});
+if(bounds.length>1)map.fitBounds(bounds,{padding:[30,30]});
+else if(bounds.length===1)map.setView(bounds[0],14);
+else map.setView([51.505,-0.09],6);
+<\/script>
+</body></html>`}
+              />
+            ) : (
+              <div className="map-placeholder">
+                {loading ? "Loading spots…" : "No spots found"}
+              </div>
+            )}
+          </div>
+        )}
+
+        {(view === "list" || view === "map") && (
+          <div className="spot-grid">
+            {filtered.slice(0, view === "map" ? 6 : 50).map(s => (
+              <Link href={`/s/${s.slug}`} key={s.slug} className="spot-card">
+                {s.images?.[0] ? (
+                  <img className="spot-card-img" src={`${IMG_BASE}${s.images[0]}`} alt={s.name} loading="lazy" />
+                ) : (
+                  <div className="spot-card-img" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--wm)", fontSize: ".8rem" }}>No photo</div>
+                )}
+                <div className="spot-card-body">
+                  <div className="spot-card-name">{s.name}</div>
+                  {s.nearestTrainStation && (
+                    <div className="spot-card-loc">📍 {s.nearestTrainStation}</div>
+                  )}
+                  <div className="spot-card-eq">
+                    {(s.equipment || []).slice(0, 4).map(eq => (
+                      <span key={eq}>{EQ_LABELS[eq] || eq}</span>
+                    ))}
+                  </div>
+                  <div className="spot-card-activity">
+                    Active spot
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* VIDEO — smaller phone frame, centred as main stage */}
-      <div className="vid-outer rv">
-        <p className="vid-eyb">See it in action</p>
-        <div className="vid-frame">
-          <video src={SC.video} autoPlay muted loop playsInline />
-          <div className="vid-overlay">
-            <div className="vid-badge"><div className="vdot" />LIVE DEMO</div>
-            <div className="vid-cap">CaliSpot in action</div>
+        {view === "map" && filtered.length > 6 && (
+          <div className="spot-cta">
+            <button className="spot-cta-link" onClick={() => setView("list")}>
+              View all {filtered.length} spots
+            </button>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* SCROLL STORY */}
-      <div id="ss" ref={rSs}>
-        <div id="sst">
-          <div className="spbr">
-            {[0,1,2,3].map(i => <div className="spbt" key={i}><div className="spbf" ref={rPb[i]} /></div>)}
+        {/* Spot-level app CTA */}
+        <div className="ev-app-prompt" style={{ marginTop: 32 }}>
+          <p>Check in, log sessions, and see who&apos;s training — in the app.</p>
+          <a href={APP_STORE} className="hero-btn" target="_blank" rel="noreferrer" style={{ fontSize: ".7rem", padding: ".7rem 1.6rem" }}>
+            Get the Full Experience
+          </a>
+        </div>
+      </section>
+
+      <div className="divider" />
+
+      {/* ═══════════════════════ EVENTS ════════════════════════════════════ */}
+      <section className="section" id="events">
+        <div className="sec-label">What&apos;s On</div>
+        <h2 className="sec-title">Events</h2>
+        <p className="sec-sub">
+          Upcoming jams, workshops, and outdoor sessions. Show up and train
+          with the community.
+        </p>
+
+        {events.length === 0 ? (
+          <div style={{ color: "var(--wm)", fontSize: ".88rem" }}>
+            No upcoming events right now — check back soon or browse events in the app.
           </div>
-          <div className="spbl">
-            {[
-              "Find parks",
-              "See who's training",
-              "Log sessions",
-              "Join community events",
-            ].map((txt, i) => (
-              <div className="spbl-item" key={i} ref={rLbl[i]} style={{ opacity: i === 0 ? 1 : 0 }}>
-                <span>{txt}</span>
+        ) : (
+          <div className="event-grid">
+            {events.map(ev => {
+              const d = new Date(ev.event_date);
+              const day = d.getDate();
+              const mon = d.toLocaleString("en-GB", { month: "short" }).toUpperCase();
+              const time = d.toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit" });
+              return (
+                <a
+                  key={ev.id}
+                  href={ev.join_url || APP_STORE}
+                  className="event-card"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <div className="ev-date-box">
+                    <div className="ev-date-day">{day}</div>
+                    <div className="ev-date-mon">{mon}</div>
+                  </div>
+                  <div className="ev-info">
+                    <div className="ev-title">{ev.title}</div>
+                    <div className="ev-meta">
+                      {time}
+                      {ev.location_name ? ` · ${ev.location_name}` : ""}
+                      {ev.organiser_name ? ` · ${ev.organiser_name}` : ""}
+                    </div>
+                  </div>
+                  <span className={`ev-badge ${ev.is_free ? "free" : "paid"}`}>
+                    {ev.is_free ? "Free" : ev.price ? `£${Math.round(ev.price)}` : "Paid"}
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="ev-app-prompt">
+          <p>RSVP, get directions, and connect with the host — in the app.</p>
+          <a href={APP_STORE} className="hero-btn" target="_blank" rel="noreferrer" style={{ fontSize: ".7rem", padding: ".7rem 1.6rem" }}>
+            Open Events in App
+          </a>
+        </div>
+      </section>
+
+      <div className="divider" />
+
+      {/* ═══════════════════════ TRAINERS ══════════════════════════════════ */}
+      <section className="section" id="trainers">
+        <div className="sec-label">Community</div>
+        <h2 className="sec-title">Trainers</h2>
+        <p className="sec-sub">
+          Meet the coaches and athletes making outdoor training accessible.
+        </p>
+
+        {trainers.length === 0 ? (
+          <div style={{ color: "var(--wm)", fontSize: ".88rem" }}>
+            Trainer profiles are coming soon. Download the app to find trainers near you.
+          </div>
+        ) : (
+          <div className="trainer-grid">
+            {trainers.map((t, i) => (
+              <div className="trainer-card" key={i}>
+                <div className="trainer-card-header">
+                  <svg width={10} height={10} viewBox="0 0 24 24" fill="#000"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  <span>Sponsored Trainer</span>
+                </div>
+                <div className="trainer-card-body">
+                  <img
+                    src={t.avatarURL || "/images/calilogobg.png"}
+                    alt={t.name}
+                    className="trainer-avatar"
+                    loading="lazy"
+                  />
+                  <div className="trainer-info">
+                    <div className="trainer-name">{t.name}</div>
+                    <div className="trainer-spot">📍 {t.spotName}</div>
+                    {t.bio && <div className="trainer-bio">{t.bio}</div>}
+                    <div className="trainer-links">
+                      {t.instagram && (
+                        <a href={`https://instagram.com/${t.instagram}`} className="trainer-link" target="_blank" rel="noreferrer">
+                          Instagram
+                        </a>
+                      )}
+                      {t.tiktok && (
+                        <a href={`https://tiktok.com/@${t.tiktok}`} className="trainer-link" target="_blank" rel="noreferrer">
+                          TikTok
+                        </a>
+                      )}
+                      {t.website && (
+                        <a href={t.website} className="trainer-link" target="_blank" rel="noreferrer">
+                          Website
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-          <div className="spn lt" ref={rP[0]}>
-            <p className="pst">01 — Discover</p>
-            <h2 className="ph2">Your park<br />is out there.</h2>
-            <p className="pp">Every park across London sorted by GPS distance. Equipment ratings, real photos - everything before you arrive.</p>
-          </div>
-          <div className="spn rt" ref={rP[1]} style={{ opacity:0 }}>
-            <p className="pst">02 — Connect</p>
-            <h2 className="ph2">Find your<br />people.</h2>
-            <p className="pp">Connect with locals and personal trainers.</p>
-          </div>
-          <div className="spn lt" ref={rP[2]} style={{ opacity:0 }}>
-            <p className="pst">03 — Train</p>
-            <h2 className="ph2">Log every<br />session.</h2>
-            <p className="pp">One tap to check in. Build streaks, track history, keep momentum going week after week.</p>
-          </div>
-          <div className="spn rt" ref={rP[3]} style={{ opacity:0 }}>
-            <p className="pst">04 — Events</p>
-            <h2 className="ph2">Train with<br />the community.</h2>
-            <p className="pp">Outdoor sessions, personal trainers, and community events - all happening at parks near you.</p>
-          </div>
-          <div className="sph" ref={rSph}>
-            <div style={{ position:"relative",width:258,height:559,flexShrink:0 }}>
-              <div style={{ position:"absolute",inset:0,background:"linear-gradient(160deg,#2c2c2c,#0a0a0a)",borderRadius:44,border:"1.5px solid rgba(255,255,255,.11)",overflow:"hidden",boxShadow:"0 0 0 1px rgba(0,0,0,.85),0 56px 110px rgba(0,0,0,.95),0 0 80px rgba(245,200,66,.07)" }}>
-                <div style={{ position:"absolute",top:9,left:"50%",transform:"translateX(-50%)",width:76,height:20,background:"#000",borderRadius:10,zIndex:10 }} />
-                <div className="dscr" ref={rDs[0]} style={{ opacity:1 }}>
-                  <img src={SC.map} alt="Map" style={{ width:"100%",height:"100%",objectFit:"cover",objectPosition:"top" }} />
-                </div>
-                <div className="dscr" ref={rDs[1]} style={{ opacity:0 }}>
-                  <img src={SC.people} alt="People" style={{ width:"100%",height:"100%",objectFit:"cover",objectPosition:"top" }} />
-                </div>
-                <div className="dscr" ref={rDs[2]} style={{ opacity:0 }}>
-                  <img src={SC.spotDetail} alt="Spot" style={{ width:"100%",height:"100%",objectFit:"cover",objectPosition:"top" }} />
-                </div>
-                <div className="dscr" ref={rDs[3]} style={{ opacity:0 }}>
-                  <img src={SC.events} alt="Events" style={{ width:"100%",height:"100%",objectFit:"cover",objectPosition:"top" }} />
-                </div>
-              </div>
+        )}
+      </section>
+
+      <div className="divider" />
+
+      {/* ═══════════════════════ ANDROID WAITLIST ══════════════════════════ */}
+      <div className="waitlist" id="android">
+        <div className="waitlist-icon">🤖</div>
+        <h2>Android Coming Soon</h2>
+        <p>Be the first to know when CaliSpot lands on Android. Drop your email and we&apos;ll let you know.</p>
+        {waitlistStatus === "done" ? (
+          <div className="waitlist-done">✅ You&apos;re on the list — we&apos;ll be in touch!</div>
+        ) : (
+          <>
+            <div className="waitlist-form">
+              <input
+                type="email"
+                className="waitlist-input"
+                placeholder="your@email.com"
+                value={waitlistEmail}
+                onChange={e => setWaitlistEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleWaitlist(e)}
+              />
+              <button
+                className="waitlist-submit"
+                onClick={handleWaitlist}
+                disabled={waitlistStatus === "sending" || !waitlistEmail}
+              >
+                {waitlistStatus === "sending" ? "Submitting…" : "Notify Me"}
+              </button>
             </div>
-          </div>
-        </div>
+            {waitlistStatus === "error" && (
+              <div className="waitlist-error">Something went wrong — please try again.</div>
+            )}
+          </>
+        )}
       </div>
 
-      {/* FEATURES */}
-      <div id="features" className="fsec">
-        <p className="sey rv">Built for the community</p>
-        <h2 className="stit rv d1">Everything<br />you need.<br /><span className="gl">Nothing</span> else.</h2>
-        <div className="fg">
-          {[
-            ["📍","Closest Spots First","Parks sorted by live GPS. Find your nearest park in seconds."],
-            ["📸","Real Photos","Know exactly what to expect. Every spot photographed by athletes who train there."],
-            ["🟢","Live Check-ins","See who's training right now. Find the energy or the quiet session you need."],
-            ["⭐","Equipment Ratings","Quality and variety scored per park. Know before you go."],
-            ["🔥","Streak Tracking","Log sessions, build streaks, own your consistency."],
-            ["🗓","Events & Trainers","Community sessions and personal trainers at your nearest spots."],
-          ].map(([num,icon,title,desc],i) => (
-            <div className={`fc rv ${i%3===1?"d1":i%3===2?"d2":""}`} key={num}>
-              <div className="fn">{num}</div>
-              <div className="fi">{icon}</div>
-              <div className="ft">{title}</div>
-              <p className="fd">{desc}</p>
-            </div>
-          ))}
-        </div>
+      {/* ═══════════════════════ BOTTOM CTA ════════════════════════════════ */}
+      <div className="cta">
+        <div className="cta-eyb">Download on iOS</div>
+        <h2>Train<br />anywhere.</h2>
+        <p>
+          Every outdoor calisthenics spot near you. Check in, log sessions,
+          connect with your crew.
+        </p>
+        <a href={APP_STORE} className="cta-btn" target="_blank" rel="noreferrer">
+          <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download CaliSpot
+        </a>
+        <div className="cta-sub">Free forever · No ads · iOS</div>
       </div>
 
-     {/* VALUES */}
-      <div className="vsec">
-        <div className="rv">
-          <p className="sey">Built different</p>
-          <h2 className="stit" style={{ fontSize:"clamp(2.8rem,5.5vw,6rem)" }}>Simple<br />by design.</h2>
-          <ul className="vl">
-            {["Open and go instantly.","Zero ads.","Every spot hand-curated by real London athletes.","Lightweight on every device.","Free to download. Free to use. Always."].map(t => (
-              <li key={t}><div className="vck">✓</div>{t}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="vbig rv d2">
-          <span className="vnum">5.0</span>
-          <span className="vnl">App Store Rating</span>
-          <span className="vnum2">0 ads</span>
-          <span className="vnl">in the app. ever.</span>
-        </div>
-      </div>
-
-      {/* CTA */}
-      <div className="csec rv">
-        <div className="cc" ref={rCc}>
-          <h2 className="ch2">Your next<br />session<br />starts here.</h2>
-          <p className="cp">Find your spot in seconds.</p>
-          <a href={APP_STORE} className="cb" target="_blank" rel="noreferrer">Download on iOS</a>
-        </div>
-      </div>
-
-      {/* FOOTER */}
+      {/* ═══════════════════════ FOOTER ════════════════════════════════════ */}
       <footer>
-        <div className="flk">
+        <div className="f-links">
           <Link href="/privacy">Privacy Policy</Link>
           <a href="mailto:8mindltd@gmail.com">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
-        <div className="fcp">© 2026 Tyrese Bewry · 8MIND LTD</div>
+        <div className="f-copy">© 2026 Tyrese Bewry · 8MIND LTD</div>
       </footer>
     </>
   );
