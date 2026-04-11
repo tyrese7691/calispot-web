@@ -9,7 +9,7 @@ import Link from "next/link";
 const APP_STORE    = "https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360";
 const SUPABASE_URL = "https://nrfwyewylurdmsnxycwz.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yZnd5ZXd5bHVyZG1zbnh5Y3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTc4MTIsImV4cCI6MjA4NzA5MzgxMn0.QJCdBm0Fa3xX1TsOJ5bLEodKpcgGjniz8vEM-_RA8wc";
-const IMG_BASE     = "https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/images/";
+const IMG_BASE     = "https://pub-179dbc4e92bd4ba0b4adc0b1cc3137f0.r2.dev/";
 const FONTS        = "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800;12..96,900&family=DM+Mono:wght@400;500&display=swap";
 
 const EQ_LABELS = {

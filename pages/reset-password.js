@@ -48,7 +48,7 @@ export default function ResetPassword() {
 
       <div className="card">
         <img
-          src="https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/images/logos/calilogobg.png"
+          src="/images/calilogobg.png"
           alt="CaliSpot"
           className="logo"
         />
