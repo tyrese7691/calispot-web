@@ -27,14 +27,13 @@ export default function DeleteAccount() {
         html{scroll-behavior:smooth}
         body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden;min-height:100vh}
 
-        /* NAV — matches privacy.js / index.js */
+        /* NAV — matches privacy.js */
         nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;border-bottom:1px solid var(--bd);background:rgba(10,10,10,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);position:sticky;top:0;z-index:900}
         .nl{display:flex;align-items:center;gap:10px;text-decoration:none}
         .nl-logo{width:51px;height:51px;border-radius:50%;overflow:hidden;background:#fff;flex-shrink:0}
         .nl-logo img{width:100%;height:100%;object-fit:cover;display:block}
-        .nl-name{font-size:1rem;font-weight:800;letter-spacing:-.02em;color:var(--w)}
-        .nbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;text-decoration:none;background:var(--y);color:#000;transition:transform .15s ease}
-        .nbtn:hover{transform:translateY(-1px)}
+        .nbtn{display:inline-flex;align-items:center;gap:6px;background:var(--y);color:#0d0d0d;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.6rem 1.4rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+        .nbtn:hover{transform:scale(1.05);box-shadow:0 0 28px rgba(245,200,66,.5)}
 
         /* CONTENT */
         .wrap{max-width:820px;margin:0 auto;padding:80px 32px 120px}
@@ -64,28 +63,28 @@ export default function DeleteAccount() {
         .back-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;background:var(--card);border:1px solid var(--bd);color:var(--w);font-weight:700;font-size:.9rem;text-decoration:none;transition:border-color .2s ease}
         .back-btn:hover{border-color:var(--y);color:var(--y)}
 
-        /* FOOTER — matches other pages */
-        footer{border-top:1px solid var(--bd);padding:40px 32px;text-align:center;background:#080808}
-        .flk{display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-bottom:16px}
-        .flk a{color:var(--wm);text-decoration:none;font-size:.86rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;transition:color .2s ease}
-        .flk a:hover{color:var(--y)}
-        .fcp{font-family:var(--mono);font-size:.75rem;color:var(--wm);letter-spacing:.08em}
+        /* FOOTER — matches privacy.js exactly */
+        footer{border-top:1px solid var(--bd);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+        .flk{display:flex;gap:2rem;flex-wrap:wrap}
+        .flk a{font-family:var(--mono);font-size:.63rem;color:rgba(255,255,255,.2);text-decoration:underline;text-underline-offset:3px;transition:color .2s}
+        .flk a:hover{color:var(--wm)}
+        .fcp{font-family:var(--mono);font-size:.56rem;color:rgba(255,255,255,.1)}
 
         @media (max-width:640px){
-          nav{padding:0 20px;height:60px}
+          nav{padding:0 24px;height:60px}
           .nl-logo{width:40px;height:40px}
-          .wrap{padding:50px 22px 80px}
+          .wrap{padding:50px 24px 80px}
           h1{font-size:2.1rem}
           h2{font-size:1.25rem}
           .method-card{padding:20px}
+          footer{padding-left:24px;padding-right:24px}
         }
       `}</style>
 
       {/* NAV */}
       <nav>
         <Link href="/" className="nl">
-          <div className="nl-logo"><img src="/calilogobg.png" alt="CaliSpot" /></div>
-          <div className="nl-name">CaliSpot</div>
+          <div className="nl-logo"><img src="/images/calilogobg.png" alt="CaliSpot" /></div>
         </Link>
         <a
           href="https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360"
@@ -93,7 +92,7 @@ export default function DeleteAccount() {
           rel="noreferrer"
           className="nbtn"
         >
-          Get the app
+          Download on iOS
         </a>
       </nav>
 

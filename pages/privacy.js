@@ -270,6 +270,7 @@ export default function Privacy() {
       <footer>
         <div className="flk">
           <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/delete-account">Delete Account</Link>
           <a href="mailto:8mindltd@gmail.com">Contact</a>
           <a href="https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360" target="_blank" rel="noreferrer">App Store</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
