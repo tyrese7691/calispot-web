@@ -6,6 +6,7 @@ import Head from "next/head";
 import Link from "next/link";
 
 const APP_STORE    = "https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360";
+const GOOGLE_PLAY  = "https://play.google.com/store/apps/details?id=com.eightmind.calispot";
 const SUPABASE_URL = "https://nrfwyewylurdmsnxycwz.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yZnd5ZXd5bHVyZG1zbnh5Y3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTc4MTIsImV4cCI6MjA4NzA5MzgxMn0.QJCdBm0Fa3xX1TsOJ5bLEodKpcgGjniz8vEM-_RA8wc";
 const IMG_BASE     = "https://pub-179dbc4e92bd4ba0b4adc0b1cc3137f0.r2.dev/";
@@ -130,8 +131,10 @@ export default function CityPage({ cityKey, cityName, spots }) {
         .cta{background:var(--y);border-radius:24px;padding:48px;text-align:center}
         .cta h2{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;letter-spacing:-.04em;color:#0a0a0a;margin-bottom:12px;line-height:.95}
         .cta p{font-size:.88rem;color:rgba(0,0,0,.5);margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto}
-        .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#0a0a0a;color:var(--y);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.85rem 2rem;border-radius:50px;text-decoration:none;transition:transform .2s}
-        .cta-btn:hover{transform:translateY(-2px)}
+        .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+        .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#0a0a0a;color:var(--y);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1rem 2.2rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+        .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.25)}
+        .cta-sub{font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(0,0,0,.35)}
 
         .back{margin-top:40px;padding-top:24px;border-top:1px solid var(--bd)}
         .back a{display:inline-flex;align-items:center;gap:6px;color:var(--y);font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:opacity .2s}
@@ -155,7 +158,7 @@ export default function CityPage({ cityKey, cityName, spots }) {
         <Link href="/" className="nav-logo">
           <img src="/images/calilogobg.png" alt="CaliSpot" />
         </Link>
-        <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">Download on iOS</a>
+        <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">Download App</a>
       </nav>
 
       <div className="wrap">
@@ -273,10 +276,9 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{max
 
           <h2>Get the Full Experience</h2>
           <p>
-            Download CaliSpot on iOS to check in at spots, log your training
-            sessions, see who&apos;s training nearby, and join local events.
-            Android is coming soon — sign up for the waitlist on the{" "}
-            <Link href="/" style={{ color: "#F5C842", textDecoration: "underline" }}>homepage</Link>.
+            Download CaliSpot to check in at spots, log your training
+            sessions, see who&apos;s training nearby, and join local events. Available on both iOS and Android.
+            
           </p>
         </article>
 
@@ -284,7 +286,17 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{max
         <div className="cta">
           <h2>Start Training in {cityName}</h2>
           <p>Find every spot, check in, and join the community.</p>
-          <a href={APP_STORE} className="cta-btn" target="_blank" rel="noreferrer">Download CaliSpot</a>
+          <div className="cta-btns">
+          <a href={APP_STORE} className="cta-btn" target="_blank" rel="noreferrer">
+              <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              Download on iOS
+            </a>
+            <a href={GOOGLE_PLAY} className="cta-btn" target="_blank" rel="noreferrer">
+              <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-1.4l2.584 1.498c.486.282.486.99 0 1.272l-2.584 1.498-2.532-2.535 2.532-2.534zM5.864 2.658L16.8 8.99l-2.302 2.302-8.635-8.635z"/></svg>
+              Download on Android
+            </a>
+          </div>
+          <div className="cta-sub">Free forever · No ads · iOS & Android</div>
         </div>
 
         <div className="back">
@@ -298,6 +310,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{max
           <Link href="/privacy">Privacy Policy</Link>
           <a href="mailto:8mindltd@gmail.com">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
+          <a href={GOOGLE_PLAY} target="_blank" rel="noreferrer">Google Play</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
