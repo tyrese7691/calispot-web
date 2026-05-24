@@ -120,7 +120,7 @@ export default function Home() {
         .nav-links{display:flex;align-items:center;gap:28px}
         .nav-link{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--wm);text-decoration:none;cursor:pointer;transition:color .2s;background:none;border:none;padding:0}
         .nav-link:hover{color:var(--w)}
-        .nav-dl{display:inline-flex;align-items:center;gap:6px;background:var(--y);color:#0a0a0a;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.55rem 1.3rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s;white-space:nowrap}
+        .nav-dl{display:inline-flex;align-items:center;gap:6px;background:var(--y);color:#0a0a0a;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.55rem 1.3rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s;white-space:nowrap;border:none;outline:none;cursor:pointer}
         .nav-dl:hover{transform:scale(1.04);box-shadow:0 0 24px rgba(245,200,66,.45)}
         .nav-hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px}
         .nav-hamburger span{display:block;width:22px;height:2px;background:var(--w);margin:5px 0;transition:all .3s}
@@ -226,6 +226,7 @@ export default function Home() {
         .cta-eyb{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,0,0,.45);margin-bottom:14px}
         .cta h2{font-size:clamp(2.4rem,7vw,5rem);font-weight:900;letter-spacing:-.04em;line-height:.9;color:#0a0a0a;margin-bottom:16px}
         .cta p{font-size:.92rem;color:rgba(0,0,0,.5);margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6}
+        .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
         .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#0a0a0a;color:var(--y);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1rem 2.2rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
         .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.25)}
         .cta-sub{margin-top:14px;font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,0,0,.35)}
@@ -593,6 +594,7 @@ else map.setView([51.505,-0.09],6);
           Every outdoor calisthenics spot near you. Check in, log sessions,
           connect with your crew.
         </p>
+        <div className="cta-btns">
         <a href={APP_STORE} className="cta-btn" target="_blank" rel="noreferrer">
           <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
           Download on iOS
@@ -601,6 +603,7 @@ else map.setView([51.505,-0.09],6);
           <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-1.4l2.584 1.498c.486.282.486.99 0 1.272l-2.584 1.498-2.532-2.535 2.532-2.534zM5.864 2.658L16.8 8.99l-2.302 2.302-8.635-8.635z"/></svg>
           Download on Android
         </a>
+        </div>
         <div className="cta-sub">Free forever · No ads · iOS & Android</div>
       </div>
 
