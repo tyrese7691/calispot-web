@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -10,6 +10,9 @@ const supabase = createClient(
 
 // Cap how many months of retention we show in the chart.
 const MAX_RETENTION_MONTHS = 12;
+
+// How many months of month-to-month history to show in the trend charts.
+const TREND_MONTHS = 12;
 
 // Distinct line colors keyed by calendar month so the same cohort month
 // always shows the same color (Mar is always gold, Jul is always violet, etc).
@@ -29,6 +32,23 @@ const COHORT_MONTH_COLORS = [
 ];
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// Build an array of the last N month keys (oldest → newest), e.g. "2026-03".
+function lastNMonthKeys(n) {
+  const keys = [];
+  const now = new Date();
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    keys.push(d.toISOString().slice(0, 7)); // "YYYY-MM"
+  }
+  return keys;
+}
+
+// "2026-03" → "Mar '26"
+function prettyMonth(key) {
+  const [y, m] = key.split("-");
+  return `${MONTH_NAMES[parseInt(m, 10) - 1]} '${y.slice(-2)}`;
+}
 
 export default function AdminDashboard() {
   const [authState, setAuthState] = useState("loading"); // loading | signedOut | notAdmin | admin
@@ -80,25 +100,67 @@ export default function AdminDashboard() {
   async function loadMetrics() {
     const now = new Date();
     const day = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-    const week = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const month = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    // DAU / WAU / MAU based on sessions — uses trained_at (actual training time)
-    const [dauRes, wauRes, mauRes] = await Promise.all([
-      supabase.from("sessions").select("user_id").gte("trained_at", day),
-      supabase.from("sessions").select("user_id").gte("trained_at", week),
-      supabase.from("sessions").select("user_id").gte("trained_at", month),
+    // Window covering the trend charts (TREND_MONTHS back), for the monthly queries.
+    const trendStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (TREND_MONTHS - 1), 1)).toISOString();
+
+    // ----- Headline totals -----
+    const [{ count: totalUsers }, { count: totalSessions }] = await Promise.all([
+      supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("sessions").select("id", { count: "exact", head: true }),
     ]);
 
-    const dau = new Set((dauRes.data || []).map(r => r.user_id)).size;
-    const wau = new Set((wauRes.data || []).map(r => r.user_id)).size;
-    const mau = new Set((mauRes.data || []).map(r => r.user_id)).size;
+    // ----- Current MAU (last 30d, any session incl. home sessions — no spot filter) -----
+    const { data: mauData } = await supabase
+      .from("sessions").select("user_id").gte("trained_at", month);
+    const mau = new Set((mauData || []).map(r => r.user_id)).size;
 
-    // Sessions count last 7d / 30d
-    const sessions7d = (wauRes.data || []).length;
-    const sessions30d = (mauRes.data || []).length;
+    // ----- All signups in the trend window, for monthly signups -----
+    const { data: signupRows } = await supabase
+      .from("profiles")
+      .select("created_at")
+      .gte("created_at", trendStart)
+      .order("created_at", { ascending: true });
 
-    // New users per day for last 30 days
+    // ----- All sessions in the trend window (NO spot filter — home sessions included) -----
+    const { data: sessionRows } = await supabase
+      .from("sessions")
+      .select("user_id, trained_at, spot_id")
+      .gte("trained_at", trendStart);
+
+    // ----- Build month-to-month series -----
+    const monthKeys = lastNMonthKeys(TREND_MONTHS);
+
+    // signups per month
+    const signupsByMonth = Object.fromEntries(monthKeys.map(k => [k, 0]));
+    (signupRows || []).forEach(p => {
+      const k = (p.created_at || "").slice(0, 7);
+      if (signupsByMonth[k] !== undefined) signupsByMonth[k] += 1;
+    });
+
+    // sessions per month + active users per month (distinct user_id per month)
+    const sessionsByMonth = Object.fromEntries(monthKeys.map(k => [k, 0]));
+    const homeSessionsByMonth = Object.fromEntries(monthKeys.map(k => [k, 0]));
+    const activeUsersByMonth = Object.fromEntries(monthKeys.map(k => [k, new Set()]));
+    (sessionRows || []).forEach(s => {
+      const k = (s.trained_at || "").slice(0, 7);
+      if (sessionsByMonth[k] === undefined) return;
+      sessionsByMonth[k] += 1;
+      if (!s.spot_id) homeSessionsByMonth[k] += 1; // spot-less = home session
+      activeUsersByMonth[k].add(s.user_id);
+    });
+
+    const monthly = monthKeys.map(k => ({
+      month: prettyMonth(k),
+      signups: signupsByMonth[k],
+      sessions: sessionsByMonth[k],
+      homeSessions: homeSessionsByMonth[k],
+      spotSessions: sessionsByMonth[k] - homeSessionsByMonth[k],
+      activeUsers: activeUsersByMonth[k].size,
+    }));
+
+    // ----- Daily signups (last 30 days) — kept as a recent-detail view -----
     const { data: profilesData } = await supabase
       .from("profiles")
       .select("created_at")
@@ -116,20 +178,11 @@ export default function AdminDashboard() {
       if (growthByDay[key] !== undefined) growthByDay[key] += 1;
     });
     const growth = Object.entries(growthByDay).map(([date, count]) => ({
-      date: date.slice(5), // "MM-DD"
+      date: date.slice(5),
       count,
     }));
 
-    // Cohort retention — queries _insights_cohort_retention_active.
-    // Columns: cohort_month (date), cohort_size (int), months_since_signup (int),
-    //          active_users (int), retention_pct (text/numeric).
-    //
-    // The chart shows "activated cohort retention" — every cohort line starts
-    // at 100% (the users who activated in M0), and subsequent months are
-    // normalised against THAT count. This isolates the retention question
-    // ("do activated users stick?") from the activation question ("do signups
-    // ever take their first action?"). The activation gap is visible elsewhere
-    // (cohort sizes, M0 active_users counts).
+    // ----- Cohort retention (unchanged) -----
     const { data: cohortData, error: cohortError } = await supabase
       .from("_insights_cohort_retention_active")
       .select("*")
@@ -141,7 +194,7 @@ export default function AdminDashboard() {
     }
     const cohortRetention = buildActivatedCohortRetention(cohortData || []);
 
-    // Top 10 spots last 30 days — uses spot_id, spot_name, trained_at
+    // ----- Top 10 spots last 30 days (unchanged — home sessions correctly excluded, no spot to rank) -----
     const { data: spotsData } = await supabase
       .from("sessions")
       .select("spot_id, spot_name, user_id")
@@ -162,34 +215,26 @@ export default function AdminDashboard() {
       .sort((a, b) => b.sessions - a.sessions)
       .slice(0, 10);
 
-    setMetrics({ dau, wau, mau, sessions7d, sessions30d, growth, cohortRetention, topSpots });
+    setMetrics({
+      totalUsers: totalUsers ?? 0,
+      totalSessions: totalSessions ?? 0,
+      mau,
+      monthly,
+      growth,
+      cohortRetention,
+      topSpots,
+    });
   }
 
-  if (authState === "loading") {
-    return <Loading />;
-  }
+  if (authState === "loading") return <Loading />;
 
   if (authState === "signedOut") {
     return (
       <Layout>
         <h1>Admin sign in</h1>
         <form onSubmit={signIn} style={styles.form}>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="Email"
-            style={styles.input}
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Password"
-            style={styles.input}
-            required
-          />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" style={styles.input} required />
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" style={styles.input} required />
           <button type="submit" style={styles.button}>Sign in</button>
           {authError && <p style={{ color: "red" }}>{authError}</p>}
         </form>
@@ -213,20 +258,55 @@ export default function AdminDashboard() {
     <Layout>
       <Head><title>CaliSpot Admin</title></Head>
       <div style={styles.headerRow}>
-        <h1>CaliSpot Admin</h1>
+        <div>
+          <h1 style={{ marginBottom: 4 }}>CaliSpot</h1>
+          <p style={{ margin: 0, color: "#6B7280", fontSize: 14 }}>Growth & engagement — month by month</p>
+        </div>
         <button onClick={signOut} style={styles.signOutButton}>Sign out</button>
       </div>
 
-      <Section title="Active users">
+      {/* Headline numbers */}
+      <Section title="Where we are today" subtitle="The totals at a glance.">
         <div style={styles.metricRow}>
-          <BigMetric label="DAU" value={metrics.dau} subtitle="Last 24 hours" />
-          <BigMetric label="WAU" value={metrics.wau} subtitle="Last 7 days" />
-          <BigMetric label="MAU" value={metrics.mau} subtitle="Last 30 days" />
+          <BigMetric label="Total users" value={metrics.totalUsers.toLocaleString()} subtitle="All-time signups" />
+          <BigMetric label="Total sessions" value={metrics.totalSessions.toLocaleString()} subtitle="All workouts logged (incl. home sessions)" />
+          <BigMetric label="Active users" value={metrics.mau.toLocaleString()} subtitle="Trained in the last 30 days" />
         </div>
       </Section>
 
-      <Section title="New users (last 30 days)">
-        <ResponsiveContainer width="100%" height={300}>
+      {/* Monthly signups */}
+      <Section title="New users each month" subtitle="How many people signed up, month by month. The core growth line.">
+        <MonthlyBarChart data={metrics.monthly} dataKey="signups" color="#1F2E5C" />
+      </Section>
+
+      {/* Monthly sessions, split home vs spot */}
+      <Section
+        title="Sessions logged each month"
+        subtitle="Total workouts logged per month — including home sessions (no spot) as well as sessions at a spot. This is overall engagement."
+      >
+        <MonthlySessionsChart data={metrics.monthly} />
+      </Section>
+
+      {/* Monthly active users */}
+      <Section title="Active users each month" subtitle="Distinct people who logged at least one session that month.">
+        <MonthlyBarChart data={metrics.monthly} dataKey="activeUsers" color="#10B981" />
+      </Section>
+
+      {/* Cohort retention (kept) */}
+      <Section
+        title="Do people stick around?"
+        subtitle="Each line is a group who joined in the same month and logged ≥1 session. It starts at 100% and shows what % were still active each following month. Higher, flatter lines = better retention."
+      >
+        <CohortRetentionChart
+          cohorts={metrics.cohortRetention.cohorts}
+          chartData={metrics.cohortRetention.chartData}
+          maxMonths={metrics.cohortRetention.maxMonths}
+        />
+      </Section>
+
+      {/* Daily signups (kept, as recent detail) */}
+      <Section title="New users — daily (last 30 days)" subtitle="The recent day-by-day detail behind the monthly signups above.">
+        <ResponsiveContainer width="100%" height={260}>
           <LineChart data={metrics.growth}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
@@ -237,25 +317,8 @@ export default function AdminDashboard() {
         </ResponsiveContainer>
       </Section>
 
-      <Section
-        title="Cohort retention"
-        subtitle="Each cohort starts at 100% (users who logged ≥1 session in their first month). Subsequent points show what % of those activated users were still active in each following month."
-      >
-        <CohortRetentionChart
-          cohorts={metrics.cohortRetention.cohorts}
-          chartData={metrics.cohortRetention.chartData}
-          maxMonths={metrics.cohortRetention.maxMonths}
-        />
-      </Section>
-
-      <Section title="Sessions">
-        <div style={styles.metricRow}>
-          <BigMetric label="Sessions (7d)" value={metrics.sessions7d} />
-          <BigMetric label="Sessions (30d)" value={metrics.sessions30d} />
-        </div>
-      </Section>
-
-      <Section title="Top 10 spots (last 30 days)">
+      {/* Top spots (kept) */}
+      <Section title="Most-used spots (last 30 days)" subtitle="Where people are actually training. Home sessions aren't listed here — they have no spot.">
         <table style={styles.table}>
           <thead>
             <tr>
@@ -280,33 +343,59 @@ export default function AdminDashboard() {
 }
 
 // ============================================================================
-// Cohort retention — activated-users-only math
+// Monthly trend charts
 // ============================================================================
 
-// Transforms the raw view rows into chart-ready data where every cohort line
-// starts at 100%, and each subsequent month is normalised against that
-// cohort's M0 active_users count.
-//
-// Returns:
-//   - cohorts: [{ label, key, monthIndex, m0ActiveUsers }, ...] for legend + colors
-//   - chartData: [{ x: "+0", "2026-03-01": 100, "2026-04-01": 100, ... }, ...]
-//   - maxMonths: highest months_since_signup present across cohorts
+function MonthlyBarChart({ data, dataKey, color }) {
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+        <XAxis dataKey="month" tick={{ fontSize: 13 }} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 13 }} />
+        <Tooltip />
+        <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+// Stacked: spot sessions + home sessions = total, so the home contribution is visible.
+function MonthlySessionsChart({ data }) {
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+        <XAxis dataKey="month" tick={{ fontSize: 13 }} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 13 }} />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="spotSessions" name="At a spot" stackId="s" fill="#1F2E5C" radius={[0, 0, 0, 0]} />
+        <Bar dataKey="homeSessions" name="Home sessions" stackId="s" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+// ============================================================================
+// Cohort retention — activated-users-only math (unchanged)
+// ============================================================================
+
 function buildActivatedCohortRetention(rows) {
   if (rows.length === 0) {
     return { cohorts: [], chartData: [], maxMonths: 0 };
   }
 
-  // Group raw rows by cohort_month, capturing M0 active_users for normalisation.
   const byCohort = new Map();
   let maxMonths = 0;
 
   for (const r of rows) {
-    const cohortKey = String(r.cohort_month); // "2026-03-01" or similar
+    const cohortKey = String(r.cohort_month);
     if (!byCohort.has(cohortKey)) {
       byCohort.set(cohortKey, {
         key: cohortKey,
         cohort_size: r.cohort_size ?? 0,
-        rawByMonth: {}, // months_since_signup → active_users
+        rawByMonth: {},
         m0Active: null,
       });
     }
@@ -319,8 +408,6 @@ function buildActivatedCohortRetention(rows) {
     if (m === 0) byCohort.get(cohortKey).m0Active = active;
   }
 
-  // Drop cohorts that have no M0 data — we can't normalise them.
-  // Also drop cohorts where M0 active_users = 0 (no one activated, line would be all 0s/NaN).
   const cohorts = Array.from(byCohort.values())
     .filter(c => c.m0Active != null && c.m0Active > 0)
     .map(c => {
@@ -336,10 +423,8 @@ function buildActivatedCohortRetention(rows) {
         rawByMonth: c.rawByMonth,
       };
     })
-    // Newest first for legend ordering
     .sort((a, b) => b.key.localeCompare(a.key));
 
-  // Build wide-format chart data: one row per month offset, each cohort is a column.
   const chartData = [];
   for (let m = 0; m <= maxMonths; m++) {
     const row = { x: `+${m}` };
@@ -348,7 +433,6 @@ function buildActivatedCohortRetention(rows) {
       if (active == null) {
         row[c.key] = null;
       } else {
-        // Normalise: M0 = 100%, each subsequent month is active/m0Active * 100
         row[c.key] = +((active / c.m0Active) * 100).toFixed(1);
       }
     }
@@ -391,12 +475,7 @@ function CohortRetentionChart({ cohorts, chartData, maxMonths }) {
             tickLine={{ stroke: "#374151" }}
           />
           <Tooltip
-            contentStyle={{
-              background: "#111827",
-              border: "1px solid #374151",
-              borderRadius: 6,
-              color: "#F9FAFB",
-            }}
+            contentStyle={{ background: "#111827", border: "1px solid #374151", borderRadius: 6, color: "#F9FAFB" }}
             labelStyle={{ color: "#9CA3AF" }}
             formatter={(v, name) => {
               if (v == null) return ["—", labelForCohort(cohorts, name)];
@@ -482,10 +561,5 @@ const styles = {
   table: { width: "100%", borderCollapse: "collapse" },
   th: { textAlign: "left", padding: 12, borderBottom: "2px solid #E5E7EB", fontWeight: 600, fontSize: 14, color: "#374151" },
   td: { padding: 12, borderBottom: "1px solid #E5E7EB", fontSize: 14 },
-  cohortChartContainer: {
-    background: "#000",
-    borderRadius: 8,
-    padding: 24,
-    border: "1px solid #1F2937",
-  },
+  cohortChartContainer: { background: "#000", borderRadius: 8, padding: 24, border: "1px solid #1F2937" },
 };
