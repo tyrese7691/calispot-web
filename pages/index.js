@@ -1,6 +1,6 @@
 // pages/index.js
 // CaliSpot — Discovery landing page
-// Spots map + list, events, trainers, conversion CTAs
+// Spots map + list, events, conversion CTAs
 
 import { useState, useEffect } from "react";
 import Head from "next/head";
@@ -24,7 +24,6 @@ const EQ_LABELS = {
 export default function Home() {
   const [spots, setSpots]           = useState([]);
   const [events, setEvents]         = useState([]);
-  const [trainers, setTrainers]     = useState([]);
   const [loading, setLoading]       = useState(true);
   const [view, setView]             = useState("map"); // "map" | "list"
   const [searchQ, setSearchQ]       = useState("");
@@ -53,20 +52,6 @@ export default function Home() {
       .catch(() => setEvents([]));
   }, []);
 
-  /* ── Extract trainers from spots ─────────────────────────────────────── */
-  useEffect(() => {
-    if (!spots.length) return;
-    const map = new Map();
-    spots.forEach(s => {
-      const pts = s.sponsoredPTs?.length ? s.sponsoredPTs : s.sponsoredPT ? [s.sponsoredPT] : [];
-      pts.forEach(pt => {
-        if (pt.name && !map.has(pt.name)) {
-          map.set(pt.name, { ...pt, spotName: s.name, spotSlug: s.slug });
-        }
-      });
-    });
-    setTrainers(Array.from(map.values()));
-  }, [spots]);
 
   /* ── Filtered spots ──────────────────────────────────────────────────── */
   const filtered = spots.filter(s =>
@@ -88,10 +73,10 @@ export default function Home() {
     <>
       <Head>
         <title>CaliSpot — Find Outdoor Calisthenics Spots Near You</title>
-        <meta name="description" content="Discover the best outdoor calisthenics parks and workout spots. Browse locations, upcoming events, and connect with trainers. Free on iOS." />
+        <meta name="description" content="Discover the best outdoor calisthenics parks and workout spots. Browse locations and upcoming events. Free on iOS." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta property="og:title" content="CaliSpot — Find Outdoor Calisthenics Spots" />
-        <meta property="og:description" content="Discover calisthenics parks, browse events, and connect with trainers near you." />
+        <meta property="og:description" content="Discover calisthenics parks and browse events near you." />
         <meta property="og:image" content="https://www.calispot.xyz/og-image.png" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.calispot.xyz" />
@@ -144,7 +129,7 @@ export default function Home() {
         .hero-glow2{position:absolute;bottom:-30%;right:-10%;width:50%;height:100%;background:radial-gradient(ellipse at center,rgba(61,255,143,.03) 0%,transparent 70%);pointer-events:none}
         .hero-eyb{font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:20px;display:flex;align-items:center;gap:10px;position:relative;justify-content:center}
         .hero-eyb::before{content:'';width:28px;height:1px;background:var(--y);flex-shrink:0}
-        .hero-title{font-family:var(--display);font-size:clamp(3rem,8vw,7rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:900px;text-align:center}
+        .hero-title{font-family:var(--display);font-size:clamp(2.2rem,7vw,5rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:900px;text-align:center;white-space:nowrap}
         .hero-title .accent{color:var(--y)}
         .hero-sub{font-size:clamp(.95rem,2vw,1.15rem);color:var(--wm);line-height:1.7;max-width:520px;margin-bottom:36px;position:relative;text-align:center}
         .hero-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:relative;justify-content:center}
@@ -211,20 +196,6 @@ export default function Home() {
         .ev-app-prompt p{font-size:.85rem;color:var(--wm);margin-bottom:12px}
 
         /* ── TRAINERS ──────────────────────────────────────────────────── */
-        .trainer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-        .trainer-card{background:var(--bg2);border:1px solid var(--bd);border-radius:18px;overflow:hidden;transition:border-color .3s,transform .3s}
-        .trainer-card:hover{border-color:rgba(245,200,66,.3);transform:translateY(-2px)}
-        .trainer-card-header{background:var(--y);padding:6px 16px;display:flex;align-items:center;gap:6px}
-        .trainer-card-header span{font-family:var(--mono);font-size:.52rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#000}
-        .trainer-card-body{padding:20px;display:flex;gap:16px;align-items:flex-start}
-        .trainer-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--bd);background:#1a1a1a}
-        .trainer-info{flex:1;min-width:0}
-        .trainer-name{font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:2px}
-        .trainer-spot{font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--wm);margin-bottom:8px}
-        .trainer-bio{font-size:.82rem;color:var(--wm);line-height:1.5;margin-bottom:12px}
-        .trainer-links{display:flex;gap:8px;flex-wrap:wrap}
-        .trainer-link{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:#000;background:var(--y);padding:.35rem .8rem;border-radius:50px;text-decoration:none;font-weight:700;transition:transform .2s}
-        .trainer-link:hover{transform:scale(1.04)}
 
         /* ── ANDROID WAITLIST ──────────────────────────────────────────── */
 
@@ -265,14 +236,13 @@ export default function Home() {
           .divider{margin:0 20px}
           .spot-grid{grid-template-columns:1fr}
           .event-grid{grid-template-columns:1fr}
-          .trainer-grid{grid-template-columns:1fr}
           .cta{margin:0 20px 60px;padding:44px 24px;border-radius:22px}
           footer{padding:24px 20px}
           .spots-controls{flex-direction:column;align-items:stretch}
           .view-toggle{align-self:flex-start}
         }
         @media(max-width:480px){
-          .hero-title{font-size:clamp(2.4rem,12vw,3.4rem)}
+          .hero-title{font-size:clamp(1.6rem,8vw,2.8rem)}
           .hero-actions{flex-direction:column;align-items:stretch}
           .hero-btn,.hero-btn-sec{justify-content:center;text-align:center}
           .hero-stats{flex-direction:column;gap:12px}
@@ -295,7 +265,6 @@ export default function Home() {
         <div className="nav-links">
           <button className="nav-link" onClick={() => scrollTo("spots")}>Spots</button>
           <button className="nav-link" onClick={() => scrollTo("events")}>Events</button>
-          <button className="nav-link" onClick={() => scrollTo("trainers")}>Trainers</button>
           <button className="nav-dl" onClick={() => scrollTo("cta")}>
             Get the App
           </button>
@@ -311,7 +280,6 @@ export default function Home() {
       <div className={`mobile-menu ${mobileMenu ? "open" : ""}`}>
         <button className="nav-link" onClick={() => scrollTo("spots")}>Spots</button>
         <button className="nav-link" onClick={() => scrollTo("events")}>Events</button>
-        <button className="nav-link" onClick={() => scrollTo("trainers")}>Trainers</button>
         <button className="nav-dl" onClick={() => scrollTo("cta")}>
           Get the App
         </button>
@@ -323,12 +291,12 @@ export default function Home() {
         <div className="hero-glow2" />
         <div className="hero-eyb fu">Outdoor calisthenics, mapped</div>
         <h1 className="hero-title fu2">
-          Find your spot.<br />
-          <span className="accent">Find your people.</span>
+          Find your <span className="accent">spot.</span><br />
+          Find your <span className="accent">people.</span>
         </h1>
         <p className="hero-sub fu3">
           Discover the best outdoor calisthenics parks near you. Browse spots,
-          find events, and connect with trainers — all for free.
+          find events, and join the community — all for free.
         </p>
         <div className="hero-actions fu4">
           <a href={APP_STORE} className="hero-btn" target="_blank" rel="noreferrer">
@@ -533,62 +501,7 @@ else map.setView([51.505,-0.09],6);
 
       <div className="divider" />
 
-      {/* ═══════════════════════ TRAINERS ══════════════════════════════════ */}
-      <section className="section" id="trainers">
-        <div className="sec-label">Community</div>
-        <h2 className="sec-title">Trainers</h2>
-        <p className="sec-sub">
-          Meet the coaches and athletes making outdoor training accessible.
-        </p>
-
-        {trainers.length === 0 ? (
-          <div style={{ color: "var(--wm)", fontSize: ".88rem" }}>
-            Trainer profiles are coming soon. Download the app to find trainers near you.
-          </div>
-        ) : (
-          <div className="trainer-grid">
-            {trainers.map((t, i) => (
-              <div className="trainer-card" key={i}>
-                <div className="trainer-card-header">
-                  <svg width={10} height={10} viewBox="0 0 24 24" fill="#000"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <span>Sponsored Trainer</span>
-                </div>
-                <div className="trainer-card-body">
-                  <img
-                    src={t.avatarURL || "/images/calilogobg.png"}
-                    alt={t.name}
-                    className="trainer-avatar"
-                    loading="lazy"
-                  />
-                  <div className="trainer-info">
-                    <div className="trainer-name">{t.name}</div>
-                    <div className="trainer-spot">📍 {t.spotName}</div>
-                    {t.bio && <div className="trainer-bio">{t.bio}</div>}
-                    <div className="trainer-links">
-                      {t.instagram && (
-                        <a href={`https://instagram.com/${t.instagram}`} className="trainer-link" target="_blank" rel="noreferrer">
-                          Instagram
-                        </a>
-                      )}
-                      {t.tiktok && (
-                        <a href={`https://tiktok.com/@${t.tiktok}`} className="trainer-link" target="_blank" rel="noreferrer">
-                          TikTok
-                        </a>
-                      )}
-                      {t.website && (
-                        <a href={t.website} className="trainer-link" target="_blank" rel="noreferrer">
-                          Website
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
+      
       <div className="divider" />
 
 
