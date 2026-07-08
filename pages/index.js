@@ -291,8 +291,8 @@ export default function Home() {
         <div className="hero-glow2" />
         <div className="hero-eyb fu">Outdoor calisthenics, mapped</div>
         <h1 className="hero-title fu2">
-          Find your <span className="accent">spot.</span><br />
-          Find your <span className="accent">people.</span>
+          Find your <span className="accent">spot</span><br />
+          Find your <span className="accent">people</span>
         </h1>
         <p className="hero-sub fu3">
           Discover the best outdoor calisthenics parks near you. Browse spots,
