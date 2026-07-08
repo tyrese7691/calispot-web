@@ -129,7 +129,7 @@ export default function Home() {
         .hero-glow2{position:absolute;bottom:-30%;right:-10%;width:50%;height:100%;background:radial-gradient(ellipse at center,rgba(61,255,143,.03) 0%,transparent 70%);pointer-events:none}
         .hero-eyb{font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:20px;display:flex;align-items:center;gap:10px;position:relative;justify-content:center}
         .hero-eyb::before{content:'';width:28px;height:1px;background:var(--y);flex-shrink:0}
-        .hero-title{font-family:var(--display);font-size:clamp(2.2rem,7vw,5rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:900px;text-align:center;white-space:nowrap}
+        .hero-title{font-family:var(--display);font-size:clamp(1.8rem,6vw,4rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:100%;text-align:center;white-space:nowrap;margin-left:auto;margin-right:auto}
         .hero-title .accent{color:var(--y)}
         .hero-sub{font-size:clamp(.95rem,2vw,1.15rem);color:var(--wm);line-height:1.7;max-width:520px;margin-bottom:36px;position:relative;text-align:center}
         .hero-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:relative;justify-content:center}
@@ -242,7 +242,7 @@ export default function Home() {
           .view-toggle{align-self:flex-start}
         }
         @media(max-width:480px){
-          .hero-title{font-size:clamp(1.6rem,8vw,2.8rem)}
+          .hero-title{font-size:clamp(1.4rem,6vw,2.2rem)}
           .hero-actions{flex-direction:column;align-items:stretch}
           .hero-btn,.hero-btn-sec{justify-content:center;text-align:center}
           .hero-stats{flex-direction:column;gap:12px}
