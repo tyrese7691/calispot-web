@@ -104,10 +104,17 @@ export default function Home() {
 
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        @font-face{
+          font-family:'Horizon';
+          src:url('/fonts/Horizon.woff2') format('woff2');
+          font-weight:normal;
+          font-style:normal;
+          font-display:swap;
+        }
         :root{
           --y:#F5C842;--g:#3DFF8F;--bg:#0a0a0a;--bg2:#111;--card:#141414;
           --bd:rgba(255,255,255,.07);--w:rgba(255,255,255,.92);--wm:rgba(255,255,255,.4);
-          --font:'Bricolage Grotesque',sans-serif;--mono:'DM Mono',monospace;
+          --font:'Bricolage Grotesque',sans-serif;--mono:'DM Mono',monospace;--display:'Horizon','Bricolage Grotesque',sans-serif;
         }
         html{scroll-behavior:smooth}
         body{background:var(--bg);color:var(--w);font-family:var(--font);overflow-x:hidden;min-height:100vh}
@@ -137,7 +144,7 @@ export default function Home() {
         .hero-glow2{position:absolute;bottom:-30%;right:-10%;width:50%;height:100%;background:radial-gradient(ellipse at center,rgba(61,255,143,.03) 0%,transparent 70%);pointer-events:none}
         .hero-eyb{font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:20px;display:flex;align-items:center;gap:10px;position:relative;justify-content:center}
         .hero-eyb::before{content:'';width:28px;height:1px;background:var(--y);flex-shrink:0}
-        .hero-title{font-size:clamp(3rem,8vw,7rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:900px;text-align:center}
+        .hero-title{font-family:var(--display);font-size:clamp(3rem,8vw,7rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:900px;text-align:center}
         .hero-title .accent{color:var(--y)}
         .hero-sub{font-size:clamp(.95rem,2vw,1.15rem);color:var(--wm);line-height:1.7;max-width:520px;margin-bottom:36px;position:relative;text-align:center}
         .hero-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:relative;justify-content:center}
@@ -153,7 +160,7 @@ export default function Home() {
         .section{padding:80px 48px}
         .sec-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);display:flex;align-items:center;gap:10px;margin-bottom:16px}
         .sec-label::before{content:'';width:24px;height:1px;background:var(--y);flex-shrink:0}
-        .sec-title{font-size:clamp(2rem,5vw,3.8rem);font-weight:900;line-height:.92;letter-spacing:-.04em;color:#fff;margin-bottom:12px}
+        .sec-title{font-family:var(--display);font-size:clamp(2rem,5vw,3.8rem);font-weight:900;line-height:.92;letter-spacing:-.04em;color:#fff;margin-bottom:12px}
         .sec-sub{font-size:.95rem;color:var(--wm);line-height:1.6;max-width:480px;margin-bottom:40px}
         .divider{height:1px;background:var(--bd);margin:0 48px}
 
@@ -314,10 +321,10 @@ export default function Home() {
       <section className="hero">
         <div className="hero-glow" />
         <div className="hero-glow2" />
-        <div className="hero-eyb fu">Find your next spot</div>
+        <div className="hero-eyb fu">Outdoor calisthenics, mapped</div>
         <h1 className="hero-title fu2">
-          Train<br />
-          <span className="accent">Anywhere.</span>
+          Find your spot.<br />
+          <span className="accent">Find your people.</span>
         </h1>
         <p className="hero-sub fu3">
           Discover the best outdoor calisthenics parks near you. Browse spots,
@@ -611,7 +618,7 @@ else map.setView([51.505,-0.09],6);
       <footer>
         <div className="f-links">
           <Link href="/privacy">Privacy Policy</Link>
-          <a href="mailto:8mindltd@gmail.com">Contact</a>
+          <a href="mailto:support@calispot.xyz">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
           <a href={GOOGLE_PLAY} target="_blank" rel="noreferrer">Google Play</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>

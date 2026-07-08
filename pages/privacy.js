@@ -85,7 +85,7 @@ export default function Privacy() {
             We are the data controller for the personal data collected through the CaliSpot iOS app
             and website (calispot.xyz).
           </p>
-          <p>Contact: <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a></p>
+          <p>Contact: <a href="mailto:support@calispot.xyz">support@calispot.xyz</a></p>
 
           <div className="divider" />
 
@@ -177,7 +177,7 @@ export default function Privacy() {
             By submitting a photo, you confirm that you took it yourself or have permission
             to share it, and that it does not identify other people without their consent.
             You can request removal of any photo you submitted by emailing{" "}
-            <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a>.
+            <a href="mailto:support@calispot.xyz">support@calispot.xyz</a>.
           </p>
 
           <div className="divider" />
@@ -221,7 +221,7 @@ export default function Privacy() {
           </ul>
           <p>
             To exercise any of these rights, email{" "}
-            <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a>.
+            <a href="mailto:support@calispot.xyz">support@calispot.xyz</a>.
             We will respond within 30 days.
           </p>
 
@@ -275,7 +275,7 @@ export default function Privacy() {
           <h2>14. Contact &amp; Complaints</h2>
           <p>
             For any questions about this privacy policy or your data, email{" "}
-            <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a>.
+            <a href="mailto:support@calispot.xyz">support@calispot.xyz</a>.
           </p>
           <p>
             If you are unhappy with how we handle your data, you have the right to complain to the
@@ -300,7 +300,7 @@ export default function Privacy() {
         <div className="flk">
           <Link href="/privacy">Privacy Policy</Link>
           <Link href="/delete-account">Delete Account</Link>
-          <a href="mailto:8mindltd@gmail.com">Contact</a>
+          <a href="mailto:support@calispot.xyz">Contact</a>
           <a href="https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360" target="_blank" rel="noreferrer">App Store</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>

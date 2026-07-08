@@ -308,7 +308,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{max
       <footer>
         <div className="f-links">
           <Link href="/privacy">Privacy Policy</Link>
-          <a href="mailto:8mindltd@gmail.com">Contact</a>
+          <a href="mailto:support@calispot.xyz">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
           <a href={GOOGLE_PLAY} target="_blank" rel="noreferrer">Google Play</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>

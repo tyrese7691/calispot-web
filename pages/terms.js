@@ -89,7 +89,7 @@ export default function Terms() {
             By creating an account or otherwise using the Service, you agree to these Terms. If you
             don&apos;t agree, please don&apos;t use the Service.
           </p>
-          <p>Contact: <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a></p>
+          <p>Contact: <a href="mailto:support@calispot.xyz">support@calispot.xyz</a></p>
 
           <div className="divider" />
 
@@ -375,7 +375,7 @@ export default function Terms() {
           <h2>20. Contact</h2>
           <p>
             For any questions about these Terms, email{" "}
-            <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a>.
+            <a href="mailto:support@calispot.xyz">support@calispot.xyz</a>.
           </p>
           <p>
             8MIND LTD &middot; Registered in England and Wales.
@@ -398,7 +398,7 @@ export default function Terms() {
           <Link href="/privacy">Privacy Policy</Link>
           <Link href="/terms">Terms of Service</Link>
           <Link href="/delete-account">Delete Account</Link>
-          <a href="mailto:8mindltd@gmail.com">Contact</a>
+          <a href="mailto:support@calispot.xyz">Contact</a>
           <a href="https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360" target="_blank" rel="noreferrer">App Store</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>

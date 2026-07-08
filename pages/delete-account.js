@@ -130,7 +130,7 @@ export default function DeleteAccount() {
             CaliSpot account:
           </p>
           <ul>
-            <li><strong>To:</strong> <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a></li>
+            <li><strong>To:</strong> <a href="mailto:support@calispot.xyz">support@calispot.xyz</a></li>
             <li><strong>Subject:</strong> <code>Delete my CaliSpot account</code></li>
             <li><strong>Body:</strong> include your display name or the email you signed up with</li>
           </ul>
@@ -199,7 +199,7 @@ export default function DeleteAccount() {
         <p>
           If you have questions about account deletion, or if you&apos;re unable to delete your account
           for any reason, contact us at{" "}
-          <a href="mailto:8mindltd@gmail.com">8mindltd@gmail.com</a> and we&apos;ll help.
+          <a href="mailto:support@calispot.xyz">support@calispot.xyz</a> and we&apos;ll help.
         </p>
         <p>
           You also have the right to complain to the UK Information Commissioner&apos;s Office (ICO)
@@ -226,7 +226,7 @@ export default function DeleteAccount() {
         <div className="flk">
           <Link href="/privacy">Privacy Policy</Link>
           <Link href="/delete-account">Delete Account</Link>
-          <a href="mailto:8mindltd@gmail.com">Contact</a>
+          <a href="mailto:support@calispot.xyz">Contact</a>
           <a href="https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360" target="_blank" rel="noreferrer">App Store</a>
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
