@@ -203,27 +203,51 @@ export default function AdminDashboard() {
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_pro", true),
     ]);
 
-    // ----- Current MAU (last 30d, any session incl. home sessions — no spot filter) -----
-    const { data: mauData } = await supabase
-      .from("sessions").select("user_id").gte("trained_at", month);
-    const mau = new Set((mauData || []).map(r => r.user_id)).size;
+    // ----- Current MAU (last 30d, any session incl. home sessions) -----
+    // Derived from the fully-paged sessionRows below (see fetchAllRows) to avoid the 1000-row cap.
+    // (Computed after sessionRows is fetched.)
 
     // ----- Raw rows over the WIDEST window we might chart (monthly = furthest back). -----
     // We fetch once and bucket client-side so the Day/7-day/Month toggle needs no refetch.
+    // NOTE: Supabase caps a single query at 1000 rows, so we PAGE through with .range()
+    // to get every row — otherwise recent buckets go blank once you pass 1000 signups/sessions.
     const rawStart = windowStart("month");
 
-    // Signups (raw created_at rows)
-    const { data: signupRows } = await supabase
-      .from("profiles")
-      .select("created_at")
-      .gte("created_at", rawStart)
-      .order("created_at", { ascending: true });
+    async function fetchAllRows(table, columns, tsColumn) {
+      const pageSize = 1000;
+      let from = 0;
+      let all = [];
+      // Hard stop at 100k rows so a bug can't loop forever.
+      for (let guard = 0; guard < 100; guard++) {
+        const { data, error } = await supabase
+          .from(table)
+          .select(columns)
+          .gte(tsColumn, rawStart)
+          .order(tsColumn, { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) {
+          console.error(`fetchAllRows(${table}) failed:`, error);
+          break;
+        }
+        all = all.concat(data || []);
+        if (!data || data.length < pageSize) break; // last page
+        from += pageSize;
+      }
+      return all;
+    }
 
-    // Sessions (NO spot filter — home sessions included)
-    const { data: sessionRows } = await supabase
-      .from("sessions")
-      .select("user_id, trained_at, spot_id")
-      .gte("trained_at", rawStart);
+    // Signups (raw created_at rows) — paged
+    const signupRows = await fetchAllRows("profiles", "created_at", "created_at");
+
+    // Sessions (NO spot filter — home sessions included) — paged
+    const sessionRows = await fetchAllRows("sessions", "user_id, trained_at, spot_id", "trained_at");
+
+    // MAU: distinct users with a session in the last 30 days, from the paged rows.
+    const mau = new Set(
+      (sessionRows || [])
+        .filter(s => (s.trained_at || "") >= month)
+        .map(s => s.user_id)
+    ).size;
 
     // ----- Cohort retention (unchanged) -----
     const { data: cohortData, error: cohortError } = await supabase
