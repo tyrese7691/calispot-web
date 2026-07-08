@@ -33,21 +33,115 @@ const COHORT_MONTH_COLORS = [
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// Build an array of the last N month keys (oldest → newest), e.g. "2026-03".
-function lastNMonthKeys(n) {
-  const keys = [];
-  const now = new Date();
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
-    keys.push(d.toISOString().slice(0, 7)); // "YYYY-MM"
-  }
-  return keys;
-}
-
 // "2026-03" → "Mar '26"
 function prettyMonth(key) {
   const [y, m] = key.split("-");
   return `${MONTH_NAMES[parseInt(m, 10) - 1]} '${y.slice(-2)}`;
+}
+
+// ── Granularity bucketing ───────────────────────────────────────────────────
+// How many buckets to show per granularity, and the label for each.
+const GRANULARITY_CONFIG = {
+  day:   { buckets: 30, label: "Day" },   // last 30 daily buckets
+  week:  { buckets: 12, label: "7-day" }, // last 12 weekly buckets
+  month: { buckets: TREND_MONTHS, label: "Month" },
+};
+
+// Return the bucket key for a given date + granularity.
+// day  → "YYYY-MM-DD"
+// week → ISO-ish week start (Monday) "YYYY-MM-DD"
+// month→ "YYYY-MM"
+function bucketKey(dateStr, granularity) {
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  if (granularity === "month") return dateStr.slice(0, 7);
+  if (granularity === "day") return dateStr.slice(0, 10);
+  // week: snap to Monday (UTC)
+  const day = d.getUTCDay();               // 0 Sun … 6 Sat
+  const diff = (day === 0 ? -6 : 1) - day; // shift back to Monday
+  const monday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + diff));
+  return monday.toISOString().slice(0, 10);
+}
+
+// Build the ordered list of bucket keys (oldest → newest) for a granularity.
+function bucketKeys(granularity) {
+  const n = GRANULARITY_CONFIG[granularity].buckets;
+  const keys = [];
+  const now = new Date();
+  if (granularity === "month") {
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+      keys.push(d.toISOString().slice(0, 7));
+    }
+  } else if (granularity === "day") {
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 86400000);
+      keys.push(d.toISOString().slice(0, 10));
+    }
+  } else {
+    // week — walk back n Mondays
+    const todayKey = bucketKey(now.toISOString(), "week");
+    let monday = new Date(todayKey + "T00:00:00.000Z");
+    for (let i = 0; i < n; i++) {
+      keys.push(monday.toISOString().slice(0, 10));
+      monday = new Date(monday.getTime() - 7 * 86400000);
+    }
+    keys.reverse();
+  }
+  return keys;
+}
+
+// Pretty label for a bucket key + granularity (for the chart X axis).
+function prettyBucket(key, granularity) {
+  if (granularity === "month") return prettyMonth(key);
+  if (granularity === "day") return key.slice(5);       // "MM-DD"
+  // week → "w/c DD Mon"
+  const d = new Date(key + "T00:00:00.000Z");
+  return `${d.getUTCDate()} ${MONTH_NAMES[d.getUTCMonth()]}`;
+}
+
+// The earliest ISO timestamp we need to fetch to fill the buckets for a granularity.
+function windowStart(granularity) {
+  const keys = bucketKeys(granularity);
+  const first = keys[0];
+  if (granularity === "month") return new Date(first + "-01T00:00:00.000Z").toISOString();
+  return new Date(first + "T00:00:00.000Z").toISOString();
+}
+
+// Given raw rows with a timestamp field, produce chart data for a granularity.
+// countMode: "count" (rows per bucket) or "distinctUser" (distinct user_id per bucket).
+function bucketize(rows, tsField, granularity, { distinctUser = false, userField = "user_id", filter = null } = {}) {
+  const keys = bucketKeys(granularity);
+  const counts = Object.fromEntries(keys.map(k => [k, distinctUser ? new Set() : 0]));
+  (rows || []).forEach(r => {
+    if (filter && !filter(r)) return;
+    const k = bucketKey(r[tsField] || "", granularity);
+    if (counts[k] === undefined) return;
+    if (distinctUser) counts[k].add(r[userField]);
+    else counts[k] += 1;
+  });
+  return keys.map(k => ({
+    x: prettyBucket(k, granularity),
+    value: distinctUser ? counts[k].size : counts[k],
+  }));
+}
+
+// Sessions split into home vs spot per bucket (for the stacked sessions chart).
+function bucketizeSessions(rows, granularity) {
+  const keys = bucketKeys(granularity);
+  const total = Object.fromEntries(keys.map(k => [k, 0]));
+  const home = Object.fromEntries(keys.map(k => [k, 0]));
+  (rows || []).forEach(s => {
+    const k = bucketKey(s.trained_at || "", granularity);
+    if (total[k] === undefined) return;
+    total[k] += 1;
+    if (!s.spot_id) home[k] += 1;
+  });
+  return keys.map(k => ({
+    x: prettyBucket(k, granularity),
+    spotSessions: total[k] - home[k],
+    homeSessions: home[k],
+  }));
 }
 
 export default function AdminDashboard() {
@@ -56,6 +150,7 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [metrics, setMetrics] = useState(null);
+  const [granularity, setGranularity] = useState("month"); // day | week | month
 
   useEffect(() => {
     checkAuth();
@@ -99,16 +194,13 @@ export default function AdminDashboard() {
 
   async function loadMetrics() {
     const now = new Date();
-    const day = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
     const month = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    // Window covering the trend charts (TREND_MONTHS back), for the monthly queries.
-    const trendStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (TREND_MONTHS - 1), 1)).toISOString();
-
     // ----- Headline totals -----
-    const [{ count: totalUsers }, { count: totalSessions }] = await Promise.all([
+    const [{ count: totalUsers }, { count: totalSessions }, { count: proUsers }] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }),
       supabase.from("sessions").select("id", { count: "exact", head: true }),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_pro", true),
     ]);
 
     // ----- Current MAU (last 30d, any session incl. home sessions — no spot filter) -----
@@ -116,71 +208,22 @@ export default function AdminDashboard() {
       .from("sessions").select("user_id").gte("trained_at", month);
     const mau = new Set((mauData || []).map(r => r.user_id)).size;
 
-    // ----- All signups in the trend window, for monthly signups -----
+    // ----- Raw rows over the WIDEST window we might chart (monthly = furthest back). -----
+    // We fetch once and bucket client-side so the Day/7-day/Month toggle needs no refetch.
+    const rawStart = windowStart("month");
+
+    // Signups (raw created_at rows)
     const { data: signupRows } = await supabase
       .from("profiles")
       .select("created_at")
-      .gte("created_at", trendStart)
+      .gte("created_at", rawStart)
       .order("created_at", { ascending: true });
 
-    // ----- All sessions in the trend window (NO spot filter — home sessions included) -----
+    // Sessions (NO spot filter — home sessions included)
     const { data: sessionRows } = await supabase
       .from("sessions")
       .select("user_id, trained_at, spot_id")
-      .gte("trained_at", trendStart);
-
-    // ----- Build month-to-month series -----
-    const monthKeys = lastNMonthKeys(TREND_MONTHS);
-
-    // signups per month
-    const signupsByMonth = Object.fromEntries(monthKeys.map(k => [k, 0]));
-    (signupRows || []).forEach(p => {
-      const k = (p.created_at || "").slice(0, 7);
-      if (signupsByMonth[k] !== undefined) signupsByMonth[k] += 1;
-    });
-
-    // sessions per month + active users per month (distinct user_id per month)
-    const sessionsByMonth = Object.fromEntries(monthKeys.map(k => [k, 0]));
-    const homeSessionsByMonth = Object.fromEntries(monthKeys.map(k => [k, 0]));
-    const activeUsersByMonth = Object.fromEntries(monthKeys.map(k => [k, new Set()]));
-    (sessionRows || []).forEach(s => {
-      const k = (s.trained_at || "").slice(0, 7);
-      if (sessionsByMonth[k] === undefined) return;
-      sessionsByMonth[k] += 1;
-      if (!s.spot_id) homeSessionsByMonth[k] += 1; // spot-less = home session
-      activeUsersByMonth[k].add(s.user_id);
-    });
-
-    const monthly = monthKeys.map(k => ({
-      month: prettyMonth(k),
-      signups: signupsByMonth[k],
-      sessions: sessionsByMonth[k],
-      homeSessions: homeSessionsByMonth[k],
-      spotSessions: sessionsByMonth[k] - homeSessionsByMonth[k],
-      activeUsers: activeUsersByMonth[k].size,
-    }));
-
-    // ----- Daily signups (last 30 days) — kept as a recent-detail view -----
-    const { data: profilesData } = await supabase
-      .from("profiles")
-      .select("created_at")
-      .gte("created_at", month)
-      .order("created_at", { ascending: true });
-
-    const growthByDay = {};
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(now.getTime() - (29 - i) * 24 * 60 * 60 * 1000);
-      const key = d.toISOString().slice(0, 10);
-      growthByDay[key] = 0;
-    }
-    (profilesData || []).forEach(p => {
-      const key = p.created_at.slice(0, 10);
-      if (growthByDay[key] !== undefined) growthByDay[key] += 1;
-    });
-    const growth = Object.entries(growthByDay).map(([date, count]) => ({
-      date: date.slice(5),
-      count,
-    }));
+      .gte("trained_at", rawStart);
 
     // ----- Cohort retention (unchanged) -----
     const { data: cohortData, error: cohortError } = await supabase
@@ -218,9 +261,10 @@ export default function AdminDashboard() {
     setMetrics({
       totalUsers: totalUsers ?? 0,
       totalSessions: totalSessions ?? 0,
+      proUsers: proUsers ?? 0,
       mau,
-      monthly,
-      growth,
+      signupRows: signupRows || [],
+      sessionRows: sessionRows || [],
       cohortRetention,
       topSpots,
     });
@@ -254,6 +298,11 @@ export default function AdminDashboard() {
 
   if (!metrics) return <Loading />;
 
+  // Derive the four toggle-able series from raw rows at the selected granularity.
+  const signupsSeries = bucketize(metrics.signupRows, "created_at", granularity);
+  const activeUsersSeries = bucketize(metrics.sessionRows, "trained_at", granularity, { distinctUser: true });
+  const sessionsSeries = bucketizeSessions(metrics.sessionRows, granularity);
+
   return (
     <Layout>
       <Head><title>CaliSpot Admin</title></Head>
@@ -269,27 +318,42 @@ export default function AdminDashboard() {
       <Section title="Where we are today" subtitle="The totals at a glance.">
         <div style={styles.metricRow}>
           <BigMetric label="Total users" value={metrics.totalUsers.toLocaleString()} subtitle="All-time signups" />
+          <BigMetric
+            label="Pro users"
+            value={metrics.proUsers.toLocaleString()}
+            subtitle={
+              metrics.totalUsers > 0
+                ? `${((metrics.proUsers / metrics.totalUsers) * 100).toFixed(1)}% of users`
+                : "Active Pro subscribers"
+            }
+          />
           <BigMetric label="Total sessions" value={metrics.totalSessions.toLocaleString()} subtitle="All workouts logged (incl. home sessions)" />
           <BigMetric label="Active users" value={metrics.mau.toLocaleString()} subtitle="Trained in the last 30 days" />
         </div>
       </Section>
 
-      {/* Monthly signups */}
-      <Section title="New users each month" subtitle="How many people signed up, month by month. The core growth line.">
-        <MonthlyBarChart data={metrics.monthly} dataKey="signups" color="#1F2E5C" />
+      {/* Granularity toggle — controls the four charts below */}
+      <div style={styles.toggleRow}>
+        <span style={styles.toggleLabel}>View by:</span>
+        <GranularityToggle value={granularity} onChange={setGranularity} />
+      </div>
+
+      {/* Signups */}
+      <Section title="New users" subtitle="How many people signed up per bucket. The core growth line.">
+        <SeriesBarChart data={signupsSeries} dataKey="value" color="#1F2E5C" />
       </Section>
 
-      {/* Monthly sessions, split home vs spot */}
+      {/* Sessions, split home vs spot */}
       <Section
-        title="Sessions logged each month"
-        subtitle="Total workouts logged per month — including home sessions (no spot) as well as sessions at a spot. This is overall engagement."
+        title="Sessions logged"
+        subtitle="Total workouts logged per bucket — including home sessions (no spot) as well as sessions at a spot. This is overall engagement."
       >
-        <MonthlySessionsChart data={metrics.monthly} />
+        <SeriesSessionsChart data={sessionsSeries} />
       </Section>
 
-      {/* Monthly active users */}
-      <Section title="Active users each month" subtitle="Distinct people who logged at least one session that month.">
-        <MonthlyBarChart data={metrics.monthly} dataKey="activeUsers" color="#10B981" />
+      {/* Active users */}
+      <Section title="Active users" subtitle="Distinct people who logged at least one session in each bucket.">
+        <SeriesBarChart data={activeUsersSeries} dataKey="value" color="#10B981" />
       </Section>
 
       {/* Cohort retention (kept) */}
@@ -304,15 +368,15 @@ export default function AdminDashboard() {
         />
       </Section>
 
-      {/* Daily signups (kept, as recent detail) */}
-      <Section title="New users — daily (last 30 days)" subtitle="The recent day-by-day detail behind the monthly signups above.">
+      {/* Signups trend line — same data as the signups bars, as a line for trend readability */}
+      <Section title="New users — trend line" subtitle="The signups above as a line, at the selected granularity, for trend readability.">
         <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={metrics.growth}>
+          <LineChart data={signupsSeries}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
+            <XAxis dataKey="x" />
             <YAxis allowDecimals={false} />
             <Tooltip />
-            <Line type="monotone" dataKey="count" stroke="#1F2E5C" strokeWidth={2} />
+            <Line type="monotone" dataKey="value" stroke="#1F2E5C" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
       </Section>
@@ -346,12 +410,38 @@ export default function AdminDashboard() {
 // Monthly trend charts
 // ============================================================================
 
-function MonthlyBarChart({ data, dataKey, color }) {
+// Day / 7-day / Month toggle.
+function GranularityToggle({ value, onChange }) {
+  const opts = [
+    { key: "day", label: "Day" },
+    { key: "week", label: "7-day" },
+    { key: "month", label: "Month" },
+  ];
+  return (
+    <div style={styles.toggleGroup}>
+      {opts.map(o => (
+        <button
+          key={o.key}
+          onClick={() => onChange(o.key)}
+          style={{
+            ...styles.toggleBtn,
+            ...(value === o.key ? styles.toggleBtnActive : {}),
+          }}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Generic single-series bar chart (X axis key = "x").
+function SeriesBarChart({ data, dataKey, color }) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-        <XAxis dataKey="month" tick={{ fontSize: 13 }} />
+        <XAxis dataKey="x" tick={{ fontSize: 13 }} />
         <YAxis allowDecimals={false} tick={{ fontSize: 13 }} />
         <Tooltip />
         <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} />
@@ -361,12 +451,12 @@ function MonthlyBarChart({ data, dataKey, color }) {
 }
 
 // Stacked: spot sessions + home sessions = total, so the home contribution is visible.
-function MonthlySessionsChart({ data }) {
+function SeriesSessionsChart({ data }) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-        <XAxis dataKey="month" tick={{ fontSize: 13 }} />
+        <XAxis dataKey="x" tick={{ fontSize: 13 }} />
         <YAxis allowDecimals={false} tick={{ fontSize: 13 }} />
         <Tooltip />
         <Legend />
@@ -562,4 +652,9 @@ const styles = {
   th: { textAlign: "left", padding: 12, borderBottom: "2px solid #E5E7EB", fontWeight: 600, fontSize: 14, color: "#374151" },
   td: { padding: 12, borderBottom: "1px solid #E5E7EB", fontSize: 14 },
   cohortChartContainer: { background: "#000", borderRadius: 8, padding: 24, border: "1px solid #1F2937" },
+  toggleRow: { display: "flex", alignItems: "center", gap: 12, marginBottom: 24 },
+  toggleLabel: { fontSize: 13, color: "#6B7280", fontWeight: 500 },
+  toggleGroup: { display: "inline-flex", border: "1px solid #D1D5DB", borderRadius: 8, overflow: "hidden" },
+  toggleBtn: { padding: "8px 16px", background: "white", border: "none", borderRight: "1px solid #E5E7EB", cursor: "pointer", fontSize: 14, color: "#374151" },
+  toggleBtnActive: { background: "#1F2E5C", color: "white" },
 };
