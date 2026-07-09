@@ -380,16 +380,12 @@ export default function AdminDashboard() {
         <SeriesBarChart data={activeUsersSeries} dataKey="value" color="#10B981" />
       </Section>
 
-      {/* Cohort retention (kept) */}
+      {/* Cohort activation — the core funnel metric */}
       <Section
-        title="Do people stick around?"
-        subtitle="Each line is a group who joined in the same month and logged ≥1 session. It starts at 100% and shows what % were still active each following month. Higher, flatter lines = better retention."
+        title="Activation — do new users actually start?"
+        subtitle="For each signup cohort, the % who logged at least one session in their first month. This is the top of the funnel: getting new signups to their first workout. Higher is better."
       >
-        <CohortRetentionChart
-          cohorts={metrics.cohortRetention.cohorts}
-          chartData={metrics.cohortRetention.chartData}
-          maxMonths={metrics.cohortRetention.maxMonths}
-        />
+        <CohortActivationChart activation={metrics.cohortRetention.activation} />
       </Section>
 
       {/* Signups trend line — same data as the signups bars, as a line for trend readability */}
