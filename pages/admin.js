@@ -460,6 +460,31 @@ function GranularityToggle({ value, onChange }) {
 }
 
 // Generic single-series bar chart (X axis key = "x").
+
+
+function CohortActivationChart({ activation }) {
+  if (!activation || activation.length === 0) {
+    return <div style={{ color: "#6B7280", fontSize: 14 }}>No cohort data yet.</div>;
+  }
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <BarChart data={activation} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
+        <XAxis dataKey="label" tick={{ fontSize: 13, fill: "#9CA3AF" }} />
+        <YAxis
+          domain={[0, 'dataMax']}
+          tickFormatter={(v) => `${v}%`}
+          tick={{ fontSize: 13, fill: "#9CA3AF" }}
+        />
+        <Tooltip
+          formatter={(v, n, p) => [`${v}%  (${p.payload.activated}/${p.payload.cohortSize})`, "Activated"]}
+          contentStyle={{ background: "#111", border: "1px solid #1F2937", color: "#fff" }}
+        />
+        <Bar dataKey="pct" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
 function SeriesBarChart({ data, dataKey, color }) {
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -553,7 +578,19 @@ function buildActivatedCohortRetention(rows) {
     chartData.push(row);
   }
 
-  return { cohorts, chartData, maxMonths };
+  // Activation = % of each cohort that logged a session in their FIRST month (month 0).
+  const activation = Array.from(byCohort.values())
+    .filter(c => c.cohort_size && c.cohort_size > 0)
+    .map(c => {
+      const date = new Date(c.key);
+      const label = `${MONTH_NAMES[date.getUTCMonth()]} '${String(date.getUTCFullYear()).slice(-2)}`;
+      const m0 = c.rawByMonth[0] ?? 0;
+      const pct = +((m0 / c.cohort_size) * 100).toFixed(1);
+      return { key: c.key, label, cohortSize: c.cohort_size, activated: m0, pct };
+    })
+    .sort((a, b) => a.key.localeCompare(b.key));
+
+  return { cohorts, chartData, maxMonths, activation };
 }
 
 function CohortRetentionChart({ cohorts, chartData, maxMonths }) {
