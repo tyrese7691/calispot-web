@@ -282,6 +282,32 @@ export default function AdminDashboard() {
       .sort((a, b) => b.sessions - a.sessions)
       .slice(0, 10);
 
+    // ----- Self-hosted analytics events (last 14 days) — replaces Google Analytics -----
+    // Aggregated server-side via admin-gated RPCs; raw event rows are never exposed.
+    let analytics = null;
+    try {
+      const [summaryRes, topRes, seriesRes, usersRes] = await Promise.all([
+        supabase.rpc("admin_analytics_summary", { p_days: 14 }),
+        supabase.rpc("admin_analytics_top_events", { p_days: 14, p_limit: 20 }),
+        supabase.rpc("admin_analytics_timeseries", { p_days: 14 }),
+        supabase.rpc("admin_analytics_active_users", { p_days: 14 }),
+      ]);
+      // Build day → {x, ios, android, unknown} for the stacked bar chart.
+      const byDay = {};
+      (seriesRes.data || []).forEach(r => {
+        if (!byDay[r.day]) byDay[r.day] = { x: r.day, ios: 0, android: 0, unknown: 0 };
+        byDay[r.day][r.platform] = (byDay[r.day][r.platform] || 0) + Number(r.cnt);
+      });
+      analytics = {
+        summary: summaryRes.data || null,
+        users: usersRes.data || null,
+        topEvents: topRes.data || [],
+        series: Object.values(byDay).sort((a, b) => a.x.localeCompare(b.x)),
+      };
+    } catch (e) {
+      console.error("analytics RPCs failed:", e);
+    }
+
     setMetrics({
       totalUsers: totalUsers ?? 0,
       totalSessions: totalSessions ?? 0,
@@ -291,6 +317,7 @@ export default function AdminDashboard() {
       sessionRows: sessionRows || [],
       cohortRetention,
       topSpots,
+      analytics,
     });
   }
 
@@ -422,6 +449,68 @@ export default function AdminDashboard() {
           </tbody>
         </table>
       </Section>
+
+      {/* In-app events — self-hosted analytics, replaces Google Analytics */}
+      {metrics.analytics && (
+        <Section
+          title="In-app events (last 14 days)"
+          subtitle="Custom analytics from the iOS + Android apps, logged straight into Supabase — our own replacement for Google Analytics."
+        >
+          <div style={styles.metricRow}>
+            <BigMetric label="Active devices" value={Number(metrics.analytics.users?.active ?? metrics.analytics.summary?.unique_devices ?? 0).toLocaleString()} subtitle="Distinct installs active in the last 14 days" />
+            <BigMetric
+              label="Returning"
+              value={Number(metrics.analytics.users?.returning ?? 0).toLocaleString()}
+              subtitle={
+                metrics.analytics.users?.active > 0
+                  ? `${((metrics.analytics.users.returning / metrics.analytics.users.active) * 100).toFixed(0)}% of active — existed before this window`
+                  : "Came back from before this window"
+              }
+            />
+            <BigMetric label="New" value={Number(metrics.analytics.users?.new ?? 0).toLocaleString()} subtitle="First-ever event in this window" />
+            <BigMetric label="Events" value={Number(metrics.analytics.summary?.total_events ?? 0).toLocaleString()} subtitle="Total logged in the last 14 days" />
+          </div>
+
+          <div style={styles.metricRow}>
+            <BigMetric label="iOS events" value={Number(metrics.analytics.summary?.ios ?? 0).toLocaleString()} subtitle="From the iPhone app" />
+            <BigMetric label="Android events" value={Number(metrics.analytics.summary?.android ?? 0).toLocaleString()} subtitle="From the Android app" />
+          </div>
+
+          <div style={{ marginTop: 24 }}>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={metrics.analytics.series}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="x" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="ios" stackId="p" fill="#1F2E5C" name="iOS" />
+                <Bar dataKey="android" stackId="p" fill="#10B981" name="Android" />
+                <Bar dataKey="unknown" stackId="p" fill="#9CA3AF" name="Unknown" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <table style={{ ...styles.table, marginTop: 24 }}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Event</th>
+                <th style={styles.th}>Count</th>
+                <th style={styles.th}>Devices</th>
+              </tr>
+            </thead>
+            <tbody>
+              {metrics.analytics.topEvents.map(e => (
+                <tr key={e.event}>
+                  <td style={styles.td}>{e.event}</td>
+                  <td style={styles.td}>{Number(e.cnt).toLocaleString()}</td>
+                  <td style={styles.td}>{Number(e.devices).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Section>
+      )}
     </Layout>
   );
 }
