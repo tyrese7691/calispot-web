@@ -295,27 +295,13 @@ export default function AdminDashboard() {
     // Aggregated server-side via admin-gated RPCs; raw event rows are never exposed.
     let analytics = null;
     try {
-      const [summaryRes, topRes, seriesRes, usersRes, usageRes, screensRes] = await Promise.all([
-        supabase.rpc("admin_analytics_summary", { p_days: 14 }),
-        supabase.rpc("admin_analytics_top_events", { p_days: 14, p_limit: 20 }),
-        supabase.rpc("admin_analytics_timeseries", { p_days: 14 }),
+      const [usersRes, usageRes] = await Promise.all([
         supabase.rpc("admin_analytics_active_users", { p_days: 14 }),
         supabase.rpc("admin_analytics_usage", { p_days: 14 }),
-        supabase.rpc("admin_analytics_top_screens", { p_days: 14, p_limit: 15 }),
       ]);
-      // Build day → {x, ios, android, unknown} for the stacked bar chart.
-      const byDay = {};
-      (seriesRes.data || []).forEach(r => {
-        if (!byDay[r.day]) byDay[r.day] = { x: r.day, ios: 0, android: 0, unknown: 0 };
-        byDay[r.day][r.platform] = (byDay[r.day][r.platform] || 0) + Number(r.cnt);
-      });
       analytics = {
-        summary: summaryRes.data || null,
         users: usersRes.data || null,
         usage: usageRes.data || null,
-        topScreens: screensRes.data || [],
-        topEvents: topRes.data || [],
-        series: Object.values(byDay).sort((a, b) => a.x.localeCompare(b.x)),
       };
     } catch (e) {
       console.error("analytics RPCs failed:", e);
@@ -394,6 +380,24 @@ export default function AdminDashboard() {
           <BigMetric label="Total sessions" value={metrics.totalSessions.toLocaleString()} subtitle="All workouts logged (incl. home sessions)" />
           <BigMetric label="Active users" value={metrics.mau.toLocaleString()} subtitle="Trained in the last 30 days" />
         </div>
+
+        {/* Self-hosted app-usage analytics (last 14 days) — replaces Google Analytics */}
+        {metrics.analytics && (
+          <div style={styles.metricRow}>
+            <BigMetric label="App opens" value={Number(metrics.analytics.usage?.app_opens ?? 0).toLocaleString()} subtitle="Foreground opens, last 14 days" />
+            <BigMetric label="Active devices" value={Number(metrics.analytics.users?.active ?? 0).toLocaleString()} subtitle="Distinct installs that opened the app" />
+            <BigMetric
+              label="Returning"
+              value={Number(metrics.analytics.users?.returning ?? 0).toLocaleString()}
+              subtitle={
+                metrics.analytics.users?.active > 0
+                  ? `${((metrics.analytics.users.returning / metrics.analytics.users.active) * 100).toFixed(0)}% of active — came back from before`
+                  : "Came back from before this window"
+              }
+            />
+            <BigMetric label="Avg time in app" value={prettyDuration(metrics.analytics.usage?.avg_session_seconds)} subtitle="Average length of one visit" />
+          </div>
+        )}
       </Section>
 
       {/* Granularity toggle — controls the four charts below */}
@@ -463,97 +467,6 @@ export default function AdminDashboard() {
         </table>
       </Section>
 
-      {/* How people use the app — self-hosted usage analytics, replaces Google Analytics */}
-      {metrics.analytics && (
-        <Section
-          title="How people use the app (last 14 days)"
-          subtitle="Self-hosted usage analytics from the iOS + Android apps — our replacement for Google Analytics."
-        >
-          <div style={styles.metricRow}>
-            <BigMetric label="App opens" value={Number(metrics.analytics.usage?.app_opens ?? 0).toLocaleString()} subtitle="Times the app was brought to the foreground" />
-            <BigMetric label="Active devices" value={Number(metrics.analytics.users?.active ?? 0).toLocaleString()} subtitle="Distinct installs that opened the app" />
-            <BigMetric
-              label="Returning"
-              value={Number(metrics.analytics.users?.returning ?? 0).toLocaleString()}
-              subtitle={
-                metrics.analytics.users?.active > 0
-                  ? `${((metrics.analytics.users.returning / metrics.analytics.users.active) * 100).toFixed(0)}% of active — came back from before`
-                  : "Came back from before this window"
-              }
-            />
-            <BigMetric label="Avg time in app" value={prettyDuration(metrics.analytics.usage?.avg_session_seconds)} subtitle="Average length of one visit" />
-          </div>
-
-          <h3 style={{ fontSize: 15, color: "#374151", marginTop: 28, marginBottom: 8 }}>Most-visited screens</h3>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Screen</th>
-                <th style={styles.th}>Views</th>
-                <th style={styles.th}>Devices</th>
-              </tr>
-            </thead>
-            <tbody>
-              {metrics.analytics.topScreens.map(s => (
-                <tr key={s.screen}>
-                  <td style={styles.td}>{s.screen}</td>
-                  <td style={styles.td}>{Number(s.views).toLocaleString()}</td>
-                  <td style={styles.td}>{Number(s.devices).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Section>
-      )}
-
-      {/* In-app events — the full event breakdown */}
-      {metrics.analytics && (
-        <Section
-          title="Event breakdown (last 14 days)"
-          subtitle="Every custom event logged, split by platform. New users this window: this is the deeper detail behind the usage numbers above."
-        >
-          <div style={styles.metricRow}>
-            <BigMetric label="Events" value={Number(metrics.analytics.summary?.total_events ?? 0).toLocaleString()} subtitle="Total logged in the last 14 days" />
-            <BigMetric label="New devices" value={Number(metrics.analytics.users?.new ?? 0).toLocaleString()} subtitle="First-ever event in this window" />
-            <BigMetric label="iOS events" value={Number(metrics.analytics.summary?.ios ?? 0).toLocaleString()} subtitle="From the iPhone app" />
-            <BigMetric label="Android events" value={Number(metrics.analytics.summary?.android ?? 0).toLocaleString()} subtitle="From the Android app" />
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={metrics.analytics.series}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="x" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="ios" stackId="p" fill="#1F2E5C" name="iOS" />
-                <Bar dataKey="android" stackId="p" fill="#10B981" name="Android" />
-                <Bar dataKey="unknown" stackId="p" fill="#9CA3AF" name="Unknown" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <table style={{ ...styles.table, marginTop: 24 }}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Event</th>
-                <th style={styles.th}>Count</th>
-                <th style={styles.th}>Devices</th>
-              </tr>
-            </thead>
-            <tbody>
-              {metrics.analytics.topEvents.map(e => (
-                <tr key={e.event}>
-                  <td style={styles.td}>{e.event}</td>
-                  <td style={styles.td}>{Number(e.cnt).toLocaleString()}</td>
-                  <td style={styles.td}>{Number(e.devices).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Section>
-      )}
     </Layout>
   );
 }
