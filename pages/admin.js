@@ -369,6 +369,15 @@ export default function AdminDashboard() {
   return (
     <Layout>
       <Head><title>CaliSpot Admin</title></Head>
+      <style jsx global>{`
+        @media print {
+          .no-print { display: none !important; }
+          body { background: #fff !important; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          section { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; }
+        }
+        @page { margin: 14mm; }
+      `}</style>
       <div style={styles.headerRow}>
         <div>
           <div style={styles.brandRow}>
@@ -377,7 +386,10 @@ export default function AdminDashboard() {
           </div>
           <p style={styles.brandSub}>How the app is doing — updated live from real usage.</p>
         </div>
-        <button onClick={signOut} style={styles.signOutButton}>Sign out</button>
+        <div className="no-print" style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => window.print()} style={styles.pdfButton}>Save as PDF</button>
+          <button onClick={signOut} style={styles.signOutButton}>Sign out</button>
+        </div>
       </div>
 
       {/* The community — all-time totals */}
@@ -778,6 +790,7 @@ const styles = {
   brandTitle: { fontSize: 30, fontWeight: 800, color: "#1F2E5C", margin: 0, letterSpacing: -0.5 },
   brandSub: { margin: "6px 0 0", color: "#6B7280", fontSize: 14 },
   signOutButton: { padding: "8px 16px", border: "1px solid #d1d5db", background: "white", borderRadius: 8, cursor: "pointer", fontSize: 14 },
+  pdfButton: { padding: "8px 16px", border: "none", background: "#1F2E5C", color: "white", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600 },
   form: { display: "flex", flexDirection: "column", gap: 12, maxWidth: 320 },
   input: { padding: 12, border: "1px solid #d1d5db", borderRadius: 6, fontSize: 16 },
   button: { padding: "12px 16px", background: "#1F2E5C", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 16 },
