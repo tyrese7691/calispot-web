@@ -160,10 +160,29 @@ export default function AdminDashboard() {
   const [authError, setAuthError] = useState("");
   const [metrics, setMetrics] = useState(null);
   const [granularity, setGranularity] = useState("month"); // day | week | month
+  const [analytics, setAnalytics] = useState(null);        // app-usage numbers for the selected period
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // App-usage numbers follow the Day / Week / Month toggle.
+  const DAYS_FOR = { day: 1, week: 7, month: 30 };
+  useEffect(() => {
+    if (authState === "admin") loadAnalytics(DAYS_FOR[granularity]);
+  }, [granularity, authState]);
+
+  async function loadAnalytics(days) {
+    try {
+      const [usersRes, usageRes] = await Promise.all([
+        supabase.rpc("admin_analytics_active_users", { p_days: days }),
+        supabase.rpc("admin_analytics_usage", { p_days: days }),
+      ]);
+      setAnalytics({ users: usersRes.data || null, usage: usageRes.data || null });
+    } catch (e) {
+      console.error("analytics RPCs failed:", e);
+    }
+  }
 
   async function checkAuth() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -199,6 +218,7 @@ export default function AdminDashboard() {
     await supabase.auth.signOut();
     setAuthState("signedOut");
     setMetrics(null);
+    setAnalytics(null);
   }
 
   async function loadMetrics() {
@@ -291,22 +311,6 @@ export default function AdminDashboard() {
       .sort((a, b) => b.sessions - a.sessions)
       .slice(0, 10);
 
-    // ----- Self-hosted analytics events (last 14 days) — replaces Google Analytics -----
-    // Aggregated server-side via admin-gated RPCs; raw event rows are never exposed.
-    let analytics = null;
-    try {
-      const [usersRes, usageRes] = await Promise.all([
-        supabase.rpc("admin_analytics_active_users", { p_days: 14 }),
-        supabase.rpc("admin_analytics_usage", { p_days: 14 }),
-      ]);
-      analytics = {
-        users: usersRes.data || null,
-        usage: usageRes.data || null,
-      };
-    } catch (e) {
-      console.error("analytics RPCs failed:", e);
-    }
-
     setMetrics({
       totalUsers: totalUsers ?? 0,
       totalSessions: totalSessions ?? 0,
@@ -316,7 +320,6 @@ export default function AdminDashboard() {
       sessionRows: sessionRows || [],
       cohortRetention,
       topSpots,
-      analytics,
     });
   }
 
@@ -361,6 +364,7 @@ export default function AdminDashboard() {
   const signupsSeries = bucketize(metrics.signupRows, "created_at", granularity);
   const activeUsersSeries = bucketize(metrics.sessionRows, "trained_at", granularity, { distinctUser: true });
   const sessionsSeries = bucketizeSessions(metrics.sessionRows, granularity);
+  const periodLabel = { day: "last 24 hours", week: "last 7 days", month: "last 30 days" }[granularity];
 
   return (
     <Layout>
@@ -391,37 +395,33 @@ export default function AdminDashboard() {
             }
           />
           <BigMetric label="Workouts logged" value={metrics.totalSessions.toLocaleString()} subtitle="Every workout, all time" />
-          <BigMetric label="Active this month" value={metrics.mau.toLocaleString()} subtitle="Worked out in the last 30 days" />
         </div>
       </Card>
-
-      {/* App usage — last 14 days */}
-      {metrics.analytics && (
-        <Card>
-          <CardHead title="App usage" hint="How people are using the app over the last 14 days." />
-          <div style={styles.metricRow}>
-            <BigMetric label="App opens" value={Number(metrics.analytics.usage?.app_opens ?? 0).toLocaleString()} subtitle="Times someone opened the app" />
-            <BigMetric label="People using it" value={Number(metrics.analytics.users?.active ?? 0).toLocaleString()} subtitle="Different phones that opened the app" />
-            <BigMetric
-              label="Coming back"
-              value={Number(metrics.analytics.users?.returning ?? 0).toLocaleString()}
-              subtitle={
-                metrics.analytics.users?.active > 0
-                  ? `${((metrics.analytics.users.returning / metrics.analytics.users.active) * 100).toFixed(0)}% had used it before`
-                  : "Returning users"
-              }
-            />
-            <BigMetric label="Time per visit" value={prettyDuration(metrics.analytics.usage?.avg_session_seconds)} subtitle="Average length of one visit" />
-          </div>
-        </Card>
-      )}
 
       {/* Trends over time */}
       <Card>
         <div style={styles.trendHeadRow}>
-          <CardHead title="Trends over time" hint="Watch these to see if things are growing. Choose a time span:" tight />
+          <CardHead title="Trends over time" hint="How usage is moving. Pick a time span — the numbers and charts below all follow it." tight />
           <GranularityToggle value={granularity} onChange={setGranularity} />
         </div>
+
+        {/* App usage for the selected period */}
+        {analytics && (
+          <div style={styles.metricRow}>
+            <BigMetric label="App opens" value={Number(analytics.usage?.app_opens ?? 0).toLocaleString()} subtitle={`Times the app was opened (${periodLabel})`} />
+            <BigMetric label="People using it" value={Number(analytics.users?.active ?? 0).toLocaleString()} subtitle={`Different phones (${periodLabel})`} />
+            <BigMetric
+              label="Coming back"
+              value={Number(analytics.users?.returning ?? 0).toLocaleString()}
+              subtitle={
+                analytics.users?.active > 0
+                  ? `${((analytics.users.returning / analytics.users.active) * 100).toFixed(0)}% had used it before`
+                  : "Returning users"
+              }
+            />
+            <BigMetric label="Time per visit" value={prettyDuration(analytics.usage?.avg_session_seconds)} subtitle="Average length of one visit" />
+          </div>
+        )}
 
         <ChartBlock title="New sign-ups" desc="How many new people joined. Taller bars mean faster growth.">
           <SeriesBarChart data={signupsSeries} dataKey="value" color="#1F2E5C" />
