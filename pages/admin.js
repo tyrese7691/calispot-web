@@ -325,13 +325,18 @@ export default function AdminDashboard() {
   if (authState === "signedOut") {
     return (
       <Layout>
-        <h1>Admin sign in</h1>
-        <form onSubmit={signIn} style={styles.form}>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" style={styles.input} required />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" style={styles.input} required />
-          <button type="submit" style={styles.button}>Sign in</button>
-          {authError && <p style={{ color: "red" }}>{authError}</p>}
-        </form>
+        <div style={{ maxWidth: 380, margin: "8vh auto 0" }}>
+          <div style={styles.brandRow}><span style={styles.brandDot} /><h1 style={styles.brandTitle}>CaliSpot</h1></div>
+          <p style={styles.brandSub}>Admin dashboard — sign in to continue.</p>
+          <div style={{ ...styles.card, marginTop: 24 }}>
+            <form onSubmit={signIn} style={styles.form}>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" style={styles.input} required />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" style={styles.input} required />
+              <button type="submit" style={styles.button}>Sign in</button>
+              {authError && <p style={{ color: "#DC2626", fontSize: 14, margin: 0 }}>{authError}</p>}
+            </form>
+          </div>
+        </div>
       </Layout>
     );
   }
@@ -339,9 +344,13 @@ export default function AdminDashboard() {
   if (authState === "notAdmin") {
     return (
       <Layout>
-        <h1>Access denied</h1>
-        <p>Your account does not have admin access.</p>
-        <button onClick={signOut} style={styles.button}>Sign out</button>
+        <div style={{ maxWidth: 380, margin: "8vh auto 0" }}>
+          <div style={styles.card}>
+            <h2 style={styles.cardTitle}>Access denied</h2>
+            <p style={styles.cardHint}>This account doesn't have admin access.</p>
+            <button onClick={signOut} style={{ ...styles.button, marginTop: 16 }}>Sign out</button>
+          </div>
+        </div>
       </Layout>
     );
   }
@@ -358,101 +367,93 @@ export default function AdminDashboard() {
       <Head><title>CaliSpot Admin</title></Head>
       <div style={styles.headerRow}>
         <div>
-          <h1 style={{ marginBottom: 4 }}>CaliSpot</h1>
-          <p style={{ margin: 0, color: "#6B7280", fontSize: 14 }}>Growth & engagement — month by month</p>
+          <div style={styles.brandRow}>
+            <span style={styles.brandDot} />
+            <h1 style={styles.brandTitle}>CaliSpot</h1>
+          </div>
+          <p style={styles.brandSub}>How the app is doing — updated live from real usage.</p>
         </div>
         <button onClick={signOut} style={styles.signOutButton}>Sign out</button>
       </div>
 
-      {/* Headline numbers */}
-      <Section title="Where we are today" subtitle="The totals at a glance.">
+      {/* The community — all-time totals */}
+      <Card>
+        <CardHead title="The community" hint="The big totals since CaliSpot launched." />
         <div style={styles.metricRow}>
-          <BigMetric label="Total users" value={metrics.totalUsers.toLocaleString()} subtitle="All-time signups" />
+          <BigMetric label="People signed up" value={metrics.totalUsers.toLocaleString()} subtitle="Accounts created, all time" />
           <BigMetric
-            label="Pro users"
+            label="Paying members"
             value={metrics.proUsers.toLocaleString()}
             subtitle={
               metrics.totalUsers > 0
-                ? `${((metrics.proUsers / metrics.totalUsers) * 100).toFixed(1)}% of users`
-                : "Active Pro subscribers"
+                ? `${((metrics.proUsers / metrics.totalUsers) * 100).toFixed(1)}% of everyone`
+                : "On CaliSpot Pro"
             }
           />
-          <BigMetric label="Total sessions" value={metrics.totalSessions.toLocaleString()} subtitle="All workouts logged (incl. home sessions)" />
-          <BigMetric label="Active users" value={metrics.mau.toLocaleString()} subtitle="Trained in the last 30 days" />
+          <BigMetric label="Workouts logged" value={metrics.totalSessions.toLocaleString()} subtitle="Every workout, all time" />
+          <BigMetric label="Active this month" value={metrics.mau.toLocaleString()} subtitle="Worked out in the last 30 days" />
         </div>
+      </Card>
 
-        {/* Self-hosted app-usage analytics (last 14 days) — replaces Google Analytics */}
-        {metrics.analytics && (
+      {/* App usage — last 14 days */}
+      {metrics.analytics && (
+        <Card>
+          <CardHead title="App usage" hint="How people are using the app over the last 14 days." />
           <div style={styles.metricRow}>
-            <BigMetric label="App opens" value={Number(metrics.analytics.usage?.app_opens ?? 0).toLocaleString()} subtitle="Foreground opens, last 14 days" />
-            <BigMetric label="Active devices" value={Number(metrics.analytics.users?.active ?? 0).toLocaleString()} subtitle="Distinct installs that opened the app" />
+            <BigMetric label="App opens" value={Number(metrics.analytics.usage?.app_opens ?? 0).toLocaleString()} subtitle="Times someone opened the app" />
+            <BigMetric label="People using it" value={Number(metrics.analytics.users?.active ?? 0).toLocaleString()} subtitle="Different phones that opened the app" />
             <BigMetric
-              label="Returning"
+              label="Coming back"
               value={Number(metrics.analytics.users?.returning ?? 0).toLocaleString()}
               subtitle={
                 metrics.analytics.users?.active > 0
-                  ? `${((metrics.analytics.users.returning / metrics.analytics.users.active) * 100).toFixed(0)}% of active — came back from before`
-                  : "Came back from before this window"
+                  ? `${((metrics.analytics.users.returning / metrics.analytics.users.active) * 100).toFixed(0)}% had used it before`
+                  : "Returning users"
               }
             />
-            <BigMetric label="Avg time in app" value={prettyDuration(metrics.analytics.usage?.avg_session_seconds)} subtitle="Average length of one visit" />
+            <BigMetric label="Time per visit" value={prettyDuration(metrics.analytics.usage?.avg_session_seconds)} subtitle="Average length of one visit" />
           </div>
-        )}
-      </Section>
+        </Card>
+      )}
 
-      {/* Granularity toggle — controls the four charts below */}
-      <div style={styles.toggleRow}>
-        <span style={styles.toggleLabel}>View by:</span>
-        <GranularityToggle value={granularity} onChange={setGranularity} />
-      </div>
+      {/* Trends over time */}
+      <Card>
+        <div style={styles.trendHeadRow}>
+          <CardHead title="Trends over time" hint="Watch these to see if things are growing. Choose a time span:" tight />
+          <GranularityToggle value={granularity} onChange={setGranularity} />
+        </div>
 
-      {/* Signups */}
-      <Section title="New users" subtitle="How many people signed up per bucket. The core growth line.">
-        <SeriesBarChart data={signupsSeries} dataKey="value" color="#1F2E5C" />
-      </Section>
+        <ChartBlock title="New sign-ups" desc="How many new people joined. Taller bars mean faster growth.">
+          <SeriesBarChart data={signupsSeries} dataKey="value" color="#1F2E5C" />
+        </ChartBlock>
 
-      {/* Sessions, split home vs spot */}
-      <Section
-        title="Sessions logged"
-        subtitle="Total workouts logged per bucket — including home sessions (no spot) as well as sessions at a spot. This is overall engagement."
-      >
-        <SeriesSessionsChart data={sessionsSeries} />
-      </Section>
+        <ChartBlock title="Workouts logged" desc="Every workout logged, split by whether it happened at a training spot or at home.">
+          <SeriesSessionsChart data={sessionsSeries} />
+        </ChartBlock>
 
-      {/* Active users */}
-      <Section title="Active users" subtitle="Distinct people who logged at least one session in each bucket.">
-        <SeriesBarChart data={activeUsersSeries} dataKey="value" color="#10B981" />
-      </Section>
+        <ChartBlock title="People working out" desc="How many different people logged at least one workout in each period.">
+          <SeriesBarChart data={activeUsersSeries} dataKey="value" color="#10B981" />
+        </ChartBlock>
+      </Card>
 
-      {/* Cohort activation — the core funnel metric */}
-      <Section
-        title="Activation — do new users actually start?"
-        subtitle="For each signup cohort, the % who logged at least one session in their first month. This is the top of the funnel: getting new signups to their first workout. Higher is better."
-      >
+      {/* Are new people getting started? */}
+      <Card>
+        <CardHead
+          title="Are new people getting started?"
+          hint="Of everyone who signed up in a given month, the share who did at least one workout that same month. Higher is better — it means new sign-ups aren't going to waste."
+        />
         <CohortActivationChart activation={metrics.cohortRetention.activation} />
-      </Section>
+      </Card>
 
-      {/* Signups trend line — same data as the signups bars, as a line for trend readability */}
-      <Section title="New users — trend line" subtitle="The signups above as a line, at the selected granularity, for trend readability.">
-        <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={signupsSeries}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="x" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Line type="monotone" dataKey="value" stroke="#1F2E5C" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
-      </Section>
-
-      {/* Top spots (kept) */}
-      <Section title="Most-used spots (last 30 days)" subtitle="Where people are actually training. Home sessions aren't listed here — they have no spot.">
+      {/* Most popular spots */}
+      <Card>
+        <CardHead title="Most popular training spots" hint="Where people actually train (last 30 days). Home workouts aren't listed — they have no spot." />
         <table style={styles.table}>
           <thead>
             <tr>
               <th style={styles.th}>Spot</th>
-              <th style={styles.th}>Sessions</th>
-              <th style={styles.th}>Unique users</th>
+              <th style={styles.th}>Workouts</th>
+              <th style={styles.th}>People</th>
             </tr>
           </thead>
           <tbody>
@@ -465,7 +466,7 @@ export default function AdminDashboard() {
             ))}
           </tbody>
         </table>
-      </Section>
+      </Card>
 
     </Layout>
   );
@@ -479,7 +480,7 @@ export default function AdminDashboard() {
 function GranularityToggle({ value, onChange }) {
   const opts = [
     { key: "day", label: "Day" },
-    { key: "week", label: "7-day" },
+    { key: "week", label: "Week" },
     { key: "month", label: "Month" },
   ];
   return (
@@ -510,15 +511,15 @@ function CohortActivationChart({ activation }) {
   return (
     <ResponsiveContainer width="100%" height={320}>
       <BarChart data={activation} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
-        <XAxis dataKey="label" tick={{ fontSize: 13, fill: "#9CA3AF" }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+        <XAxis dataKey="label" tick={{ fontSize: 13, fill: "#6B7280" }} />
         <YAxis
           domain={[0, 'dataMax']}
           tickFormatter={(v) => `${v}%`}
-          tick={{ fontSize: 13, fill: "#9CA3AF" }}
+          tick={{ fontSize: 13, fill: "#6B7280" }}
         />
         <Tooltip
-          formatter={(v, n, p) => [`${v}%  (${p.payload.activated}/${p.payload.cohortSize})`, "Activated"]}
+          formatter={(v, n, p) => [`${v}%  (${p.payload.activated} of ${p.payload.cohortSize})`, "Did a workout"]}
           contentStyle={{ background: "#111", border: "1px solid #1F2937", color: "#fff" }}
         />
         <Bar dataKey="pct" fill="#F59E0B" radius={[4, 4, 0, 0]} />
@@ -710,8 +711,10 @@ function labelForCohort(cohorts, key) {
 
 function Layout({ children }) {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", maxWidth: 1100, margin: "0 auto", padding: "32px 24px" }}>
-      {children}
+    <div style={{ fontFamily: "system-ui, sans-serif", background: "#F5F6F8", minHeight: "100vh" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -732,24 +735,65 @@ function Section({ title, subtitle, children }) {
   );
 }
 
+// A white rounded card that groups a section of the dashboard.
+function Card({ children }) {
+  return <section style={styles.card}>{children}</section>;
+}
+
+// Card title + plain-English one-liner explaining what's inside.
+function CardHead({ title, hint, tight }) {
+  return (
+    <div style={{ marginBottom: tight ? 0 : 20 }}>
+      <h2 style={styles.cardTitle}>{title}</h2>
+      {hint && <p style={styles.cardHint}>{hint}</p>}
+    </div>
+  );
+}
+
+// A single chart with a plain title and a "what this shows" line above it.
+function ChartBlock({ title, desc, children }) {
+  return (
+    <div style={styles.chartBlock}>
+      <h3 style={styles.chartTitle}>{title}</h3>
+      {desc && <p style={styles.chartDesc}>{desc}</p>}
+      {children}
+    </div>
+  );
+}
+
 function BigMetric({ label, value, subtitle }) {
   return (
     <div style={styles.metricCard}>
-      <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: 48, fontWeight: 700, color: "#1F2E5C", lineHeight: 1 }}>{value}</div>
-      {subtitle && <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 8 }}>{subtitle}</div>}
+      <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 8, fontWeight: 500 }}>{label}</div>
+      <div style={{ fontSize: 40, fontWeight: 800, color: "#1F2E5C", lineHeight: 1, letterSpacing: -1 }}>{value}</div>
+      {subtitle && <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 10, lineHeight: 1.4 }}>{subtitle}</div>}
     </div>
   );
 }
 
 const styles = {
-  headerRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 },
-  signOutButton: { padding: "8px 16px", border: "1px solid #d1d5db", background: "white", borderRadius: 6, cursor: "pointer" },
+  headerRow: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 },
+  brandRow: { display: "flex", alignItems: "center", gap: 10 },
+  brandDot: { width: 12, height: 12, borderRadius: 4, background: "#F59E0B", display: "inline-block" },
+  brandTitle: { fontSize: 30, fontWeight: 800, color: "#1F2E5C", margin: 0, letterSpacing: -0.5 },
+  brandSub: { margin: "6px 0 0", color: "#6B7280", fontSize: 14 },
+  signOutButton: { padding: "8px 16px", border: "1px solid #d1d5db", background: "white", borderRadius: 8, cursor: "pointer", fontSize: 14 },
   form: { display: "flex", flexDirection: "column", gap: 12, maxWidth: 320 },
   input: { padding: 12, border: "1px solid #d1d5db", borderRadius: 6, fontSize: 16 },
   button: { padding: "12px 16px", background: "#1F2E5C", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 16 },
-  metricRow: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 },
-  metricCard: { padding: 24, background: "#F9FAFB", borderRadius: 8, border: "1px solid #E5E7EB" },
+
+  card: { background: "white", border: "1px solid #ECEEF2", borderRadius: 16, padding: 28, marginBottom: 24, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" },
+  cardTitle: { fontSize: 20, fontWeight: 700, color: "#111827", margin: 0 },
+  cardHint: { fontSize: 14, color: "#6B7280", margin: "6px 0 0", maxWidth: 760, lineHeight: 1.5 },
+
+  metricRow: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 },
+  metricCard: { padding: 20, background: "#F9FAFB", borderRadius: 12, border: "1px solid #EEF0F3" },
+
+  trendHeadRow: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap", marginBottom: 24 },
+  chartBlock: { marginTop: 28, paddingTop: 24, borderTop: "1px solid #F1F2F4" },
+  chartTitle: { fontSize: 16, fontWeight: 700, color: "#111827", margin: 0 },
+  chartDesc: { fontSize: 13, color: "#6B7280", margin: "4px 0 16px", maxWidth: 760, lineHeight: 1.5 },
+
   table: { width: "100%", borderCollapse: "collapse" },
   th: { textAlign: "left", padding: 12, borderBottom: "2px solid #E5E7EB", fontWeight: 600, fontSize: 14, color: "#374151" },
   td: { padding: 12, borderBottom: "1px solid #E5E7EB", fontSize: 14 },
