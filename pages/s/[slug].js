@@ -558,7 +558,7 @@ L.marker([${spot.lat},${spot.lng}],{icon:icon}).addTo(map).bindPopup('<b>${spot.
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
-        <div className="f-copy">© 2026 Tyrese Bewry · 8MIND LTD</div>
+        <div className="f-copy">© 2026 Tyrese Bewry · CALISPOT LTD</div>
       </footer>
     </>
   );

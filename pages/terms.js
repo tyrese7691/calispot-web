@@ -82,7 +82,7 @@ export default function Terms() {
           <p>
             Welcome to CaliSpot. These Terms of Service (&ldquo;Terms&rdquo;) govern your use of the
             CaliSpot iOS and Android apps and the calispot.xyz website (together, the
-            &ldquo;Service&rdquo;). The Service is operated by 8MIND LTD (&ldquo;we&rdquo;,
+            &ldquo;Service&rdquo;). The Service is operated by CALISPOT LTD (&ldquo;we&rdquo;,
             &ldquo;us&rdquo;, &ldquo;our&rdquo;), a company registered in England and Wales.
           </p>
           <p>
@@ -263,12 +263,21 @@ export default function Terms() {
           <h2>12. Intellectual Property</h2>
           <p>
             The CaliSpot name, logo, app design, code, illustrations, and content created by us are
-            owned by 8MIND LTD and protected by copyright, trademark, and other laws. You
+            owned by CALISPOT LTD and protected by copyright, trademark, and other laws. You
             can&apos;t copy, modify, distribute, or create derivative works from our materials
             without our written permission.
           </p>
           <p>
             User Content remains owned by the user who posted it (see Section 5).
+          </p>
+          <p>
+            The CaliSpot spot database, spot photographs, ratings, and related content are
+            proprietary to CALISPOT LTD and provided solely for your personal, non-commercial use
+            within the Service. You may not access the Service by automated means (bots, scrapers,
+            crawlers), or extract, copy, harvest, cache, or store the spot data or images in bulk,
+            or use them to build, train, or populate any competing or derivative product or
+            dataset. We may rate-limit, suspend, or permanently ban any account that does so, and
+            pursue all available remedies.
           </p>
 
           <div className="divider" />
@@ -378,7 +387,7 @@ export default function Terms() {
             <a href="mailto:support@calispot.xyz">support@calispot.xyz</a>.
           </p>
           <p>
-            8MIND LTD &middot; Registered in England and Wales.
+            CALISPOT LTD &middot; Registered in England and Wales.
           </p>
         </div>
 
@@ -403,7 +412,7 @@ export default function Terms() {
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
-        <div className="fcp">&copy; 2026 Tyrese Bewry &middot; 8MIND LTD</div>
+        <div className="fcp">&copy; 2026 Tyrese Bewry &middot; CALISPOT LTD</div>
       </footer>
     </>
   );

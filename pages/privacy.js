@@ -81,7 +81,7 @@ export default function Privacy() {
 
           <h2>1. Who We Are</h2>
           <p>
-            CaliSpot is operated by 8MIND LTD (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;).
+            CaliSpot is operated by CALISPOT LTD (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;).
             We are the data controller for the personal data collected through the CaliSpot iOS app
             and website (calispot.xyz).
           </p>
@@ -164,7 +164,7 @@ export default function Privacy() {
           <p>
             When you submit a photo of a calisthenics spot through the app &mdash; for example,
             when suggesting a new spot or adding a photo to an existing one &mdash; you grant
-            8MIND LTD a non-exclusive, royalty-free, worldwide licence to use, display,
+            CALISPOT LTD a non-exclusive, royalty-free, worldwide licence to use, display,
             reproduce, and modify that photo within the CaliSpot app, website, and related
             marketing materials.
           </p>
@@ -305,7 +305,7 @@ export default function Privacy() {
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
-        <div className="fcp">&copy; 2026 Tyrese Bewry &middot; 8MIND LTD</div>
+        <div className="fcp">&copy; 2026 Tyrese Bewry &middot; CALISPOT LTD</div>
       </footer>
     </>
   );

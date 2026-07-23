@@ -231,7 +231,7 @@ export default function DeleteAccount() {
           <a href="https://www.instagram.com/calispot.xyz/" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://www.tiktok.com/@calispot.xyz" target="_blank" rel="noreferrer">TikTok</a>
         </div>
-        <div className="fcp">&copy; 2026 Tyrese Bewry &middot; 8MIND LTD</div>
+        <div className="fcp">&copy; 2026 Tyrese Bewry &middot; CALISPOT LTD</div>
       </footer>
     </>
   );
