@@ -178,6 +178,10 @@ export default function AdminDashboard() {
         supabase.rpc("admin_analytics_active_users", { p_days: days }),
         supabase.rpc("admin_analytics_usage", { p_days: days }),
       ]);
+      // supabase.rpc resolves with { data, error } and never throws, so surface
+      // errors explicitly — otherwise a missing/failed RPC silently reads as 0.
+      if (usersRes.error) console.error("admin_analytics_active_users failed:", usersRes.error);
+      if (usageRes.error) console.error("admin_analytics_usage failed:", usageRes.error);
       setAnalytics({ users: usersRes.data || null, usage: usageRes.data || null });
     } catch (e) {
       console.error("analytics RPCs failed:", e);
@@ -365,6 +369,7 @@ export default function AdminDashboard() {
   const activeUsersSeries = bucketize(metrics.sessionRows, "trained_at", granularity, { distinctUser: true });
   const sessionsSeries = bucketizeSessions(metrics.sessionRows, granularity);
   const periodLabel = { day: "last 24 hours", week: "last 7 days", month: "last 30 days" }[granularity];
+  const periodNoun = { day: "day", week: "week", month: "month" }[granularity];
 
   return (
     <Layout>
@@ -427,8 +432,8 @@ export default function AdminDashboard() {
               value={Number(analytics.users?.returning ?? 0).toLocaleString()}
               subtitle={
                 analytics.users?.active > 0
-                  ? `${((analytics.users.returning / analytics.users.active) * 100).toFixed(0)}% had used it before`
-                  : "Returning users"
+                  ? `${((analytics.users.returning / analytics.users.active) * 100).toFixed(0)}% came back from the previous ${periodNoun}`
+                  : "Also active the previous period"
               }
             />
             <BigMetric label="Time per visit" value={prettyDuration(analytics.usage?.avg_session_seconds)} subtitle="Average length of one visit" />
