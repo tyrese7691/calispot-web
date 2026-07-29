@@ -4,7 +4,7 @@ import Link from "next/link";
 const FONTS = "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800;12..96,900&family=DM+Mono:wght@400;500&display=swap";
 const APP_STORE = "https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6747050360";
 const GOOGLE_PLAY = "https://play.google.com/store/apps/details?id=com.eightmind.calispot";
-const EMAIL = "ty.rese@icloud.com";
+const EMAIL = "tyrese@calispot.xyz";
 
 const LAYERS = [
   ["iOS", "SwiftUI · StoreKit 2 subscriptions · geofenced arrival notifications · deep links & QR joins · Live Activities"],
@@ -69,10 +69,6 @@ export default function Hire() {
         .cta.pri:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(245,200,66,.4)}
         .cta.sec{border:1px solid rgba(255,255,255,.18);color:var(--w)}
         .cta.sec:hover{border-color:rgba(255,255,255,.4);transform:translateY(-2px)}
-        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:4rem}
-        .stat{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:1.6rem 1.2rem;text-align:center}
-        .stat b{display:block;font-size:2rem;font-weight:900;letter-spacing:-.03em;color:var(--g)}
-        .stat span{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--wm)}
         h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;color:var(--w);margin-bottom:.6rem}
         .sub{font-size:.95rem;line-height:1.7;color:var(--wm);margin-bottom:1.8rem;max-width:60ch}
         .layers{display:flex;flex-direction:column;gap:8px;margin-bottom:4rem}
@@ -98,7 +94,6 @@ export default function Hire() {
         .fcp{font-family:var(--mono);font-size:.56rem;color:rgba(255,255,255,.1)}
         @media(max-width:640px){
           nav,.wrap,footer{padding-left:24px;padding-right:24px}
-          .stats{grid-template-columns:1fr}
           .offers{grid-template-columns:1fr}
           .layer{grid-template-columns:1fr;gap:.35rem}
         }
@@ -125,13 +120,6 @@ export default function Hire() {
           <a className="cta pri" href={`mailto:${EMAIL}`}>Email me</a>
           <a className="cta sec" href={APP_STORE} target="_blank" rel="noreferrer">iOS app</a>
           <a className="cta sec" href={GOOGLE_PLAY} target="_blank" rel="noreferrer">Android app</a>
-        </div>
-
-        {/* STATS */}
-        <div className="stats">
-          <div className="stat"><b>2,000</b><span>Registered athletes</span></div>
-          <div className="stat"><b>210</b><span>Spots mapped</span></div>
-          <div className="stat"><b>520</b><span>Workouts logged</span></div>
         </div>
 
         {/* WHAT I BUILT */}
