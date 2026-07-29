@@ -6,35 +6,35 @@ const APP_STORE = "https://apps.apple.com/gb/app/calispot-calisthenics-parks/id6
 const GOOGLE_PLAY = "https://play.google.com/store/apps/details?id=com.eightmind.calispot";
 const EMAIL = "tyrese@calispot.xyz";
 
-const LAYERS = [
-  ["iOS", "SwiftUI · StoreKit 2 subscriptions · geofenced arrival notifications · deep links & QR joins · Live Activities"],
-  ["Android", "Kotlin + Jetpack Compose · Play Billing v8 · full feature parity with iOS · targets API 36"],
-  ["Backend", "Supabase Postgres · row-level security · SQL functions enforcing business rules & rate limits · storage · edge functions"],
-  ["Web", "Next.js at calispot.xyz · SEO-indexed public spot pages · legal & account flows"],
-  ["Payments", "Freemium subscriptions (£9.99/mo, £99.99/yr) with server-enforced feature gating on both platforms"],
-  ["Analytics", "Self-hosted event pipeline — no third-party SaaS — plus a custom admin dashboard: retention, usage, growth"],
-  ["Ops", "App Store & Play Console releases · review compliance · ASO · localisation (EN/ES/FR) · release signing"],
+const SCOPE = [
+  ["Product", "Roadmap, specs, and prioritisation — every feature from idea to shipped, deciding what NOT to build as often as what to build"],
+  ["Delivery", "iOS (SwiftUI) + Android (Jetpack Compose) shipped in parity — engineering directed through modern AI tooling, reviewed and tested by me on device"],
+  ["Monetisation", "Freemium subscription design: one universal paywall, store-driven pricing (£9.99/mo · £99.99/yr), Pro feature gating enforced server-side"],
+  ["Analytics", "Chose the metrics, built a self-hosted event pipeline and admin dashboard: retention, active users, growth trends"],
+  ["Community & growth", "Crews, events, share loops, creator partnership formats, content strategy — growth designed into the product, not bolted on"],
+  ["Store ops", "App Store & Play releases, review compliance, ASO, localisation into 3 languages, pricing changes, the lot"],
 ];
 
-const PROOFS = [
-  ["Subscription gating that can't be bypassed", "Pro features are enforced in the database, not just the UI — SQL triggers apply limits and automatically downgrade content when a subscription lapses, so business rules hold even against a modified client."],
-  ["Cross-platform parity as one person", "Every feature ships on iOS and Android with matching behaviour — same data layer, same edge cases, same day. Most teams need two engineers for this; I've made it a repeatable workflow."],
-  ["App Review, handled", "Location features designed to pass Apple's scrutiny: opt-in geofencing with quiet hours and throttling, no unnecessary background capabilities, privacy strings that say what they mean."],
+const DECISIONS = [
+  ["Designed the subscription business", "Chose the freemium split, killed contextual paywalls for one universal paywall that converts, moved pricing to live store fetch so price changes need no app update — then designed the Pro gating rules (content limits, automatic downgrade on lapse) and had them enforced in the database, not the UI."],
+  ["Made the open-vs-closed data call", "Faced with scraping risk on our spot database, I evaluated lockdown options and chose to keep the data public — the SEO and growth upside beats secrecy for a community product. Documented the trade-off and protected the brand with watermarking and terms instead."],
+  ["Got through App Review by understanding it", "When Apple questioned our location usage, I traced it to an unnecessary background capability, removed it without losing the geofenced notifications feature, and wrote the review response. Approved."],
+  ["Built the feedback loop before scaling it", "Self-hosted analytics from day one — event pipeline, retention definitions, admin dashboard — so every product decision since has been made against real usage, not guesses."],
 ];
 
-const OFFERS = [
-  ["Ship your mobile app", "iOS, Android, or both — from idea to store listing."],
-  ["Add revenue", "Subscriptions, in-app purchases, and paywalls implemented properly on both platforms."],
-  ["Own a product surface", "I'm used to owning everything from the database schema to the App Store screenshots."],
-  ["Move fast without breaking trust", "RLS-first security, review-compliant by design."],
+const LOOKING = [
+  ["Product roles", "Associate PM, product ops, product analyst — anywhere the job is deciding, specifying, testing, and shipping."],
+  ["Community & growth", "Community or growth roles at consumer apps — I've built community mechanics and the content engine to feed them."],
+  ["AI-native build roles", "Teams shipping with AI tooling — my entire workflow is directing AI to production quality across two platforms."],
+  ["Fitness & consumer social", "Where my domain knowledge is deepest — I live this market as a founder and an athlete."],
 ];
 
 export default function Hire() {
   return (
     <>
       <Head>
-        <title>Hire Tyrese — Product Engineer | CaliSpot</title>
-        <meta name="description" content="I design, build, and ship complete mobile products solo — proof: CaliSpot, a live two-platform app with paying subscribers. Available for contract builds and product engineering roles." />
+        <title>Tyrese Bewry — Product | CaliSpot</title>
+        <meta name="description" content="Founder of CaliSpot — a live two-platform app with paying subscribers. I decide, spec, test, and ship products end to end. Open to product, growth, and community roles." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
@@ -61,7 +61,7 @@ export default function Hire() {
         .eyb{font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:1.4rem;display:flex;align-items:center;gap:.7rem}
         .eyb::before{content:'';width:24px;height:1px;background:var(--y);flex-shrink:0}
         h1{font-size:clamp(2.6rem,7vw,5rem);font-weight:900;line-height:.94;letter-spacing:-.04em;color:#fff;margin-bottom:1.6rem}
-        .lede{font-size:1.15rem;line-height:1.7;color:rgba(255,255,255,.65);margin-bottom:2.6rem;max-width:56ch}
+        .lede{font-size:1.15rem;line-height:1.7;color:rgba(255,255,255,.65);margin-bottom:2.6rem;max-width:58ch}
         .lede strong{color:var(--w)}
         .cta-row{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:4rem}
         .cta{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.85rem 1.7rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
@@ -72,7 +72,7 @@ export default function Hire() {
         h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;color:var(--w);margin-bottom:.6rem}
         .sub{font-size:.95rem;line-height:1.7;color:var(--wm);margin-bottom:1.8rem;max-width:60ch}
         .layers{display:flex;flex-direction:column;gap:8px;margin-bottom:4rem}
-        .layer{display:grid;grid-template-columns:110px 1fr;gap:1.2rem;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:1.05rem 1.3rem;align-items:baseline}
+        .layer{display:grid;grid-template-columns:150px 1fr;gap:1.2rem;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:1.05rem 1.3rem;align-items:baseline}
         .layer b{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--y)}
         .layer p{font-size:.9rem;line-height:1.65;color:rgba(255,255,255,.6)}
         .proofs{display:flex;flex-direction:column;gap:12px;margin-bottom:4rem}
@@ -109,12 +109,13 @@ export default function Hire() {
 
       {/* CONTENT */}
       <div className="wrap">
-        <div className="eyb">Tyrese Bewry — Product Engineer</div>
-        <h1>I ship complete mobile products. Solo.</h1>
+        <div className="eyb">Tyrese Bewry — Product</div>
+        <h1>I decide, spec, test, and ship. End to end.</h1>
         <p className="lede">
-          Proof, not promises: <strong>CaliSpot</strong> is a live two-platform app with paying
-          subscribers — iOS, Android, backend, payments, web, and analytics, all designed and
-          built by one person. The fastest way to evaluate me is to download it.
+          I founded <strong>CaliSpot</strong> — a live iOS + Android app with paying subscribers
+          that maps the UK&apos;s outdoor calisthenics spots and builds community around them.
+          Every product decision was mine: what to build, what to charge, what to kill.
+          The fastest way to evaluate me is to download it.
         </p>
         <div className="cta-row">
           <a className="cta pri" href={`mailto:${EMAIL}`}>Email me</a>
@@ -122,32 +123,32 @@ export default function Hire() {
           <a className="cta sec" href={GOOGLE_PLAY} target="_blank" rel="noreferrer">Android app</a>
         </div>
 
-        {/* WHAT I BUILT */}
-        <h2>Every layer, built by me</h2>
+        {/* SCOPE */}
+        <h2>The scope I&apos;ve owned</h2>
         <p className="sub">
-          CaliSpot maps the UK&apos;s outdoor calisthenics spots and builds community around the
-          map — crews, events, workout logging, and social sharing. Live in three languages.
+          One person, every hat — which means I know how each part of a product company
+          actually connects to the others.
         </p>
         <div className="layers">
-          {LAYERS.map(([k, v]) => (
+          {SCOPE.map(([k, v]) => (
             <div className="layer" key={k}><b>{k}</b><p>{v}</p></div>
           ))}
         </div>
 
-        {/* PROOF */}
-        <h2>Three problems I&apos;m proud of solving</h2>
-        <p className="sub">The parts that separate a shipped product from a demo.</p>
+        {/* DECISIONS */}
+        <h2>Decisions I&apos;m proud of</h2>
+        <p className="sub">Product work is judgement. Here&apos;s mine, with receipts.</p>
         <div className="proofs">
-          {PROOFS.map(([k, v]) => (
+          {DECISIONS.map(([k, v]) => (
             <div className="proof" key={k}><h3>{k}</h3><p>{v}</p></div>
           ))}
         </div>
 
-        {/* OFFER */}
-        <h2>What I can do for you</h2>
-        <p className="sub">Available for contract builds, fractional mobile engineering, and product engineering roles.</p>
+        {/* LOOKING FOR */}
+        <h2>What I&apos;m looking for</h2>
+        <p className="sub">Full-time roles, London or remote.</p>
         <div className="offers">
-          {OFFERS.map(([k, v]) => (
+          {LOOKING.map(([k, v]) => (
             <div className="offer" key={k}><h3>{k}</h3><p>{v}</p></div>
           ))}
         </div>
@@ -155,8 +156,8 @@ export default function Hire() {
         {/* CLOSE */}
         <div className="close">
           <p>
-            <b>References and a full product walkthrough available on request.</b> Based in
-            London, working with clients anywhere.
+            <b>No degree — a shipped product instead.</b> References and a full product
+            walkthrough available on request. Based in London.
           </p>
           <a className="cta pri" href={`mailto:${EMAIL}`}>{EMAIL}</a>
         </div>
