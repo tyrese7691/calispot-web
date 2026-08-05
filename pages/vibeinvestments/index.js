@@ -90,8 +90,41 @@ export default function VibeRedesign() {
         html{scroll-behavior:smooth}
         body{background:var(--paper);color:var(--ink);font-family:var(--sans)}
         a{text-decoration:none;color:inherit}
+
+        /* ── Reveal system: each section gets its own motion ── */
         .rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+        .rv.left{transform:translateX(-44px)}
+        .rv.right{transform:translateX(44px)}
+        .rv.zoom{transform:scale(.94)}
+        .rv.tilt{transform:translateY(30px) rotate(2.5deg)}
         .rv.in{opacity:1;transform:none}
+        /* Curtain wipe (portfolio) */
+        .rv.wipe{opacity:1;transform:none;clip-path:inset(0 100% 0 0);transition:clip-path .9s cubic-bezier(.7,0,.3,1)}
+        .rv.wipe img{transform:scale(1.15);transition:transform 1.4s cubic-bezier(.2,.6,.2,1)}
+        .rv.wipe.in{clip-path:inset(0 0 0 0)}
+        .rv.wipe.in img{transform:scale(1)}
+        /* Rising curtain (founder portrait) */
+        .rv.unveil{opacity:1;transform:none;clip-path:inset(100% 0 0 0);transition:clip-path 1s cubic-bezier(.7,0,.3,1)}
+        .rv.unveil.in{clip-path:inset(0 0 0 0)}
+        /* Line-draw (vision steps: gold border grows in) */
+        .step{position:relative;border-top:2px solid transparent}
+        .step::before{content:'';position:absolute;top:-2px;left:0;height:2px;width:0;background:var(--gold);transition:width 1s cubic-bezier(.7,0,.3,1)}
+        .step.in::before{width:100%}
+        /* Staggers */
+        .cards .card:nth-child(2){transition-delay:.1s}
+        .cards .card:nth-child(3){transition-delay:.2s}
+        .cards .card:nth-child(4){transition-delay:.3s}
+        .props .prop:nth-child(2){transition-delay:.15s}
+        .props .prop:nth-child(3){transition-delay:.3s}
+        .steps .step:nth-child(2){transition-delay:.25s}
+        .steps .step:nth-child(2)::before{transition-delay:.25s}
+        .steps .step:nth-child(3){transition-delay:.5s}
+        .steps .step:nth-child(3)::before{transition-delay:.5s}
+        .shelf .book:nth-child(2n){transition-delay:.08s}
+        .shelf .book:nth-child(3n){transition-delay:.16s}
+        .stats-in .stat:nth-child(2){transition-delay:.1s}
+        .stats-in .stat:nth-child(3){transition-delay:.2s}
+        .stats-in .stat:nth-child(4){transition-delay:.3s}
 
         /* Nav */
         nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
@@ -107,7 +140,9 @@ export default function VibeRedesign() {
 
         /* Hero */
         .hero{position:relative;min-height:88vh;display:flex;align-items:center;background:var(--navy)}
-        .hero::before{content:'';position:absolute;inset:0;background:url('${IMG.hero}') center/cover no-repeat;opacity:.28}
+        .hero::before{content:'';position:absolute;inset:0;background:url('${IMG.hero}') center/cover no-repeat;opacity:.28;
+                      animation:kenburns 22s ease-in-out infinite alternate}
+        @keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.09)}}
         .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,rgba(8,24,39,.95) 30%,rgba(8,24,39,.4))}
         .hwrap{position:relative;z-index:2;padding:6rem 5vw;max-width:1200px;margin:0 auto;width:100%}
         .kicker{font-family:var(--sans);font-size:.72rem;font-weight:600;letter-spacing:.35em;text-transform:uppercase;
@@ -171,7 +206,7 @@ export default function VibeRedesign() {
 
         /* Vision timeline */
         .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;margin-top:3rem}
-        .step{border-top:2px solid var(--gold);padding-top:1.4rem}
+        .step{padding-top:1.4rem}
         .step .yr{font-family:var(--serif);font-size:1.6rem;color:var(--navy)}
         .step p{margin-top:.6rem;color:var(--soft);font-size:.95rem;line-height:1.7}
 
@@ -248,17 +283,17 @@ export default function VibeRedesign() {
       {/* STATS */}
       <div className="stats">
         <div className="stats-in">
-          <div className="stat"><b>2020</b><span>Founded</span></div>
-          <div className="stat"><b>2</b><span>Markets — STL & LV</span></div>
-          <div className="stat"><b>Buy & Hold</b><span>Core strategy</span></div>
-          <div className="stat"><b>20–30</b><span>Unit portfolio target</span></div>
+          <div className="stat rv"><b>2020</b><span>Founded</span></div>
+          <div className="stat rv"><b>2</b><span>Markets — STL & LV</span></div>
+          <div className="stat rv"><b>Buy & Hold</b><span>Core strategy</span></div>
+          <div className="stat rv"><b>20–30</b><span>Unit portfolio target</span></div>
         </div>
       </div>
 
       {/* WHO WE ARE */}
       <section id="who">
         <div className="wrap who">
-          <div className="rv">
+          <div className="rv left">
             <div className="eyebrow">Who We Are</div>
             <h2>Wealth, built the patient way.</h2>
             <a className="dl" href={LINKS.newsletter} target="_blank" rel="noreferrer">
@@ -268,7 +303,7 @@ export default function VibeRedesign() {
               </div>
             </a>
           </div>
-          <div className="rv">
+          <div className="rv right">
             <p className="lead">
               Vibe Investment is a trusted real estate investment company specialising
               in long-term buy-and-hold strategies. We empower new and seasoned investors
@@ -315,15 +350,15 @@ export default function VibeRedesign() {
             </p>
           </div>
           <div className="props">
-            <a className="prop rv" href={LINKS.properties.california} target="_blank" rel="noreferrer">
+            <a className="prop rv wipe" href={LINKS.properties.california} target="_blank" rel="noreferrer">
               <img src={IMG.prop1} alt="California Ave" />
               <div className="ov"><span className="city">St. Louis, MO</span><h3>California Ave</h3><span className="view">View property →</span></div>
             </a>
-            <a className="prop rv" href={LINKS.properties.eichelberger} target="_blank" rel="noreferrer">
+            <a className="prop rv wipe" href={LINKS.properties.eichelberger} target="_blank" rel="noreferrer">
               <img src={IMG.prop2} alt="Eichelberger St" />
               <div className="ov"><span className="city">St. Louis, MO</span><h3>Eichelberger St</h3><span className="view">View property →</span></div>
             </a>
-            <a className="prop rv" href={LINKS.properties.aurora} target="_blank" rel="noreferrer">
+            <a className="prop rv wipe" href={LINKS.properties.aurora} target="_blank" rel="noreferrer">
               <img src={IMG.prop3} alt="Aurora Beam" />
               <div className="ov"><span className="city">Las Vegas, NV</span><h3>Aurora Beam</h3><span className="view">View property →</span></div>
             </a>
@@ -354,8 +389,8 @@ export default function VibeRedesign() {
       {/* FOUNDER */}
       <section style={{ paddingTop: 0 }}>
         <div className="wrap founder">
-          <div className="fimg rv"><img src={IMG.founder} alt="Hardy Vibert, Founder" /></div>
-          <div className="rv">
+          <div className="fimg rv unveil"><img src={IMG.founder} alt="Hardy Vibert, Founder" /></div>
+          <div className="rv right">
             <div className="eyebrow">Our Founder</div>
             <h2>Hardy Vibert</h2>
             <p className="lead" style={{ marginTop: "1.2rem" }}>
@@ -413,7 +448,7 @@ export default function VibeRedesign() {
           </div>
           <div className="shelf">
             {IMG.books.map(([img, link]) => (
-              <a className="book rv" key={img} href={link} target="_blank" rel="noreferrer">
+              <a className="book rv tilt" key={img} href={link} target="_blank" rel="noreferrer">
                 <img src={img} alt="Recommended book" />
               </a>
             ))}
@@ -423,7 +458,7 @@ export default function VibeRedesign() {
 
       {/* CTA */}
       <section className="cta">
-        <div className="wrap rv">
+        <div className="wrap rv zoom">
           <div className="eyebrow">Ready to Start?</div>
           <h2>Let&apos;s build your wealth, together.</h2>
           <p className="lead">
