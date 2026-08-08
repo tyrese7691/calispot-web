@@ -527,6 +527,31 @@ else map.setView([51.505,-0.09],6);
         <div className="cta-sub">Free forever · No ads · iOS & Android</div>
       </div>
 
+      {/* ═══════════════════════ BROWSE BY CITY (SEO) ══════════════════════ */}
+      <section style={{ padding: "48px 48px 56px", borderTop: "1px solid var(--bd)" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: ".6rem", letterSpacing: ".22em", textTransform: "uppercase", color: "var(--wm)", marginBottom: 16 }}>
+            Calisthenics Parks by City
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 24px" }}>
+            {[
+              ["london", "London"], ["manchester", "Manchester"], ["birmingham", "Birmingham"],
+              ["leeds", "Leeds"], ["bristol", "Bristol"], ["liverpool", "Liverpool"],
+              ["brighton", "Brighton"], ["edinburgh", "Edinburgh"], ["glasgow", "Glasgow"],
+              ["cardiff", "Cardiff"], ["nottingham", "Nottingham"], ["sheffield", "Sheffield"],
+            ].map(([key, name]) => (
+              <Link
+                key={key}
+                href={`/spots/${key}`}
+                style={{ fontFamily: "var(--mono)", fontSize: ".68rem", letterSpacing: ".08em", textTransform: "uppercase", color: key === "london" ? "var(--y)" : "rgba(255,255,255,.35)", textDecoration: "none" }}
+              >
+                Calisthenics Parks {name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════════ FOOTER ════════════════════════════════════ */}
       <footer>
         <div className="f-links">

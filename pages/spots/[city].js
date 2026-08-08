@@ -70,6 +70,20 @@ export default function CityPage({ cityKey, cityName, spots }) {
   const title = `Calisthenics Parks in ${cityName} — Outdoor Gym Spots | CaliSpot`;
   const desc = `Find the best outdoor calisthenics parks and workout spots in ${cityName}. ${spots.length} spots with pull-up bars, dip stations, and more. Free on CaliSpot.`;
 
+  const itemListLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Calisthenics Parks in ${cityName}`,
+    description: desc,
+    numberOfItems: spots.length,
+    itemListElement: spots.slice(0, 100).map((s, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: s.name,
+      url: `https://www.calispot.xyz/s/${s.slug}`,
+    })),
+  };
+
   return (
     <>
       <Head>
@@ -86,6 +100,7 @@ export default function CityPage({ cityKey, cityName, spots }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
         <link href={FONTS} rel="stylesheet" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
       </Head>
 
       <style>{`
@@ -297,6 +312,22 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{max
             </a>
           </div>
           <div className="cta-sub">Free forever · No ads · iOS & Android</div>
+        </div>
+
+        {/* Other cities — internal links so every city page is crawlable from every other */}
+        <div style={{ marginTop: 40 }}>
+          <div className="eyb">More Cities</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 20px" }}>
+            {Object.entries(CITY_DATA).filter(([k]) => k !== cityKey).map(([k, c]) => (
+              <Link
+                key={k}
+                href={`/spots/${k}`}
+                style={{ fontFamily: "var(--mono)", fontSize: ".62rem", letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(255,255,255,.35)", textDecoration: "none" }}
+              >
+                Calisthenics Parks {c.name}
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="back">

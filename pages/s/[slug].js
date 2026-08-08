@@ -1,6 +1,8 @@
 // pages/s/[slug].js
+// Server-rendered (SSG + ISR) so Google indexes every spot page with real
+// content — title, description, structured data. New spots appear via
+// fallback:"blocking" + hourly revalidate; no redeploy needed.
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -44,32 +46,62 @@ function Dots({ val, max = 5 }) {
   );
 }
 
-export default function SpotPage() {
-  const router = useRouter();
-  const { slug } = router.query;
+// Cities that have /spots/[city] SEO pages — used to link each spot back to
+// its city hub (internal linking both directions helps both pages rank).
+const CITY_HUBS = [
+  { key: "london",     name: "London",     lat: 51.505, lng: -0.09,  radius: 0.4 },
+  { key: "manchester", name: "Manchester", lat: 53.483, lng: -2.244, radius: 0.3 },
+  { key: "birmingham", name: "Birmingham", lat: 52.486, lng: -1.890, radius: 0.3 },
+  { key: "leeds",      name: "Leeds",      lat: 53.801, lng: -1.549, radius: 0.3 },
+  { key: "bristol",    name: "Bristol",    lat: 51.455, lng: -2.588, radius: 0.3 },
+  { key: "liverpool",  name: "Liverpool",  lat: 53.408, lng: -2.992, radius: 0.3 },
+  { key: "brighton",   name: "Brighton",   lat: 50.827, lng: -0.152, radius: 0.3 },
+  { key: "edinburgh",  name: "Edinburgh",  lat: 55.953, lng: -3.189, radius: 0.3 },
+  { key: "glasgow",    name: "Glasgow",    lat: 55.864, lng: -4.252, radius: 0.3 },
+  { key: "cardiff",    name: "Cardiff",    lat: 51.482, lng: -3.179, radius: 0.3 },
+  { key: "nottingham", name: "Nottingham", lat: 52.954, lng: -1.158, radius: 0.3 },
+  { key: "sheffield",  name: "Sheffield",  lat: 53.383, lng: -1.465, radius: 0.3 },
+];
 
-  const [spot, setSpot]             = useState(null);
-  const [loading, setLoading]       = useState(true);
-  const [notFound, setNotFound]     = useState(false);
-  const [activeImg, setActiveImg]   = useState(null);
-  const [touchStart, setTouchStart] = useState(null);
+export async function getStaticPaths() {
+  let paths = [];
+  try {
+    const r = await fetch(`${SUPABASE_URL}/storage/v1/object/public/spots/spots.json`);
+    const all = await r.json();
+    paths = all.filter(s => s.slug).map(s => ({ params: { slug: s.slug } }));
+  } catch {}
+  return { paths, fallback: "blocking" };
+}
+
+export async function getStaticProps({ params }) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/storage/v1/object/public/spots/spots.json`);
+    const all = await r.json();
+    const spot = all.find(s => s.slug === params.slug);
+    if (!spot) return { notFound: true, revalidate: 3600 };
+
+    let city = null;
+    if (spot.lat && spot.lng) {
+      city = CITY_HUBS.find(c =>
+        Math.sqrt(Math.pow(spot.lat - c.lat, 2) + Math.pow(spot.lng - c.lng, 2)) <= c.radius
+      ) || null;
+    }
+
+    return {
+      props: { spot, city: city ? { key: city.key, name: city.name } : null },
+      revalidate: 3600,
+    };
+  } catch {
+    return { notFound: true, revalidate: 300 };
+  }
+}
+
+export default function SpotPage({ spot, city }) {
+  const slug = spot?.slug;
+
   const [events, setEvents]         = useState([]);
   const [heroIdx, setHeroIdx]       = useState(0);
   const heroTimer                   = useRef(null);
-
-
-
-  useEffect(() => {
-    if (!slug) return;
-    fetch("https://nrfwyewylurdmsnxycwz.supabase.co/storage/v1/object/public/spots/spots.json", { cache:"no-store" })
-      .then(r => r.json())
-      .then(data => {
-        const found = data.find(s => s.slug === slug);
-        found ? setSpot(found) : setNotFound(true);
-        setLoading(false);
-      })
-      .catch(() => { setNotFound(true); setLoading(false); });
-  }, [slug]);
 
   useEffect(() => {
     if (!spot?.images?.length) return;
@@ -107,20 +139,41 @@ export default function SpotPage() {
     };
   }, [slug]);
 
-  const onTouchStart = e => setTouchStart(e.touches[0].clientX);
-  const onTouchEnd   = e => {
-    if (!touchStart || !spot) return;
-    const d = touchStart - e.changedTouches[0].clientX;
-    if (d >  50) setActiveImg(p => (p === spot.images.length - 1 ? 0 : p + 1));
-    if (d < -50) setActiveImg(p => (p === 0 ? spot.images.length - 1 : p - 1));
-    setTouchStart(null);
-  };
-
-
-
-  const title   = spot ? `${spot.name} — CaliSpot` : "CaliSpot";
-  const desc    = spot ? `Outdoor calisthenics spot. Equipment, photos and directions - free on CaliSpot.` : "Find outdoor calisthenics spots near you.";
+  const eqList  = (spot?.equipment || []).map(eq => EQ_LABELS[eq] || eq);
+  const title   = spot
+    ? `${spot.name} — Calisthenics Park${city ? ` in ${city.name}` : ""} | CaliSpot`
+    : "CaliSpot";
+  const desc    = spot
+    ? `${spot.name} is a free outdoor calisthenics park${city ? ` in ${city.name}` : ""}${spot.nearestTrainStation ? ` near ${spot.nearestTrainStation}` : ""}.${eqList.length ? ` Equipment: ${eqList.join(", ")}.` : ""} Photos, ratings and directions on CaliSpot.`
+    : "Find outdoor calisthenics spots near you.";
   const ogImage = spot?.images?.[0] ? `${IMG_BASE}${spot.images[0]}` : "/images/calilogobg.png";
+
+  const jsonLd = spot ? {
+    "@context": "https://schema.org",
+    "@type": "SportsActivityLocation",
+    name: spot.name,
+    description: desc,
+    url: `https://www.calispot.xyz/s/${slug}`,
+    ...(spot.images?.length ? { image: spot.images.map(i => `${IMG_BASE}${i}`) } : {}),
+    ...(spot.lat && spot.lng ? {
+      geo: { "@type": "GeoCoordinates", latitude: spot.lat, longitude: spot.lng },
+    } : {}),
+    ...(city ? {
+      address: { "@type": "PostalAddress", addressLocality: city.name, addressCountry: "GB" },
+    } : {}),
+    isAccessibleForFree: true,
+    publicAccess: true,
+  } : null;
+
+  const breadcrumbLd = spot && city ? {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "CaliSpot", item: "https://www.calispot.xyz" },
+      { "@type": "ListItem", position: 2, name: `Calisthenics Parks in ${city.name}`, item: `https://www.calispot.xyz/spots/${city.key}` },
+      { "@type": "ListItem", position: 3, name: spot.name, item: `https://www.calispot.xyz/s/${slug}` },
+    ],
+  } : null;
 
   return (
     <>
@@ -137,11 +190,17 @@ export default function SpotPage() {
         <meta name="twitter:card"       content="summary_large_image" />
         <meta name="twitter:title"      content={title} />
         <meta name="twitter:image"      content={ogImage} />
+        <link rel="canonical" href={`https://www.calispot.xyz/s/${slug||""}`} />
         <link rel="icon" href="/images/calilogobg.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
         <link href={FONTS} rel="stylesheet" />
-
+        {jsonLd && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        )}
+        {breadcrumbLd && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+        )}
       </Head>
 
       <style>{`
@@ -208,12 +267,6 @@ export default function SpotPage() {
         .station-lbl{font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--wm)}
         .station-name{font-size:1rem;font-weight:700;color:#fff;margin-top:3px}
 
-        .photo-strip{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:8px 4px 12px;margin-bottom:32px;scrollbar-width:none}
-        .photo-strip::-webkit-scrollbar{display:none}
-        .photo-thumb{scroll-snap-align:start;flex-shrink:0;width:240px;height:170px;border-radius:14px;overflow:hidden;border:1px solid var(--bd);cursor:pointer;transition:transform .3s,border-color .3s;overflow:visible}
-        .photo-thumb:hover{transform:translateY(-6px) scale(1.03);border-color:rgba(245,200,66,.3)}
-        .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;border-radius:14px}
-
         .map-wrap{border-radius:20px;overflow:hidden;height:280px;border:1px solid var(--bd);margin-bottom:48px}
 
         .cta{position:relative;overflow:hidden;background:var(--y);border-radius:28px;padding:56px 40px;text-align:center}
@@ -230,13 +283,6 @@ export default function SpotPage() {
         .f-links a{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:rgba(255,255,255,.18);text-decoration:underline;text-underline-offset:3px;transition:color .2s}
         .f-links a:hover{color:var(--wm)}
         .f-copy{font-family:var(--mono);font-size:.52rem;color:rgba(255,255,255,.1)}
-
-        .overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:zoom-out}
-        .overlay img{max-width:92%;max-height:78vh;border-radius:14px;object-fit:contain}
-        .overlay-arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:2.8rem;color:rgba(255,255,255,.6);background:none;border:none;cursor:pointer;padding:0 20px;user-select:none;transition:color .2s}
-        .overlay-arrow:hover{color:#fff}
-        .overlay-close{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:10000}
-        .overlay-close:hover{background:rgba(255,255,255,.2)}
 
         .state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px;text-align:center;padding:40px}
         .state-icon{font-size:3rem}
@@ -294,23 +340,7 @@ export default function SpotPage() {
         <a href={APP_STORE} className="nav-dl" target="_blank" rel="noreferrer">Download App</a>
       </nav>
 
-      {loading && (
-        <div className="state">
-          <div className="state-icon">⏳</div>
-          <div className="state-title">Loading spot…</div>
-        </div>
-      )}
-
-      {!loading && notFound && (
-        <div className="state">
-          <div className="state-icon">📍</div>
-          <div className="state-title">Spot not found</div>
-          <div className="state-sub">This spot may have moved or been removed.</div>
-          <Link href="/" className="nav-dl" style={{ marginTop:20 }}>Browse all spots</Link>
-        </div>
-      )}
-
-      {!loading && spot && (
+      {spot && (
         <>
           {/* HERO */}
           <div className="hero">
@@ -481,20 +511,6 @@ export default function SpotPage() {
               </>
             )}
 
-            {/* PHOTO STRIP */}
-            {spot.images?.length > 1 && (
-              <>
-                <div className="sec-label">Photos</div>
-                <div className="photo-strip">
-                  {spot.images.map((img, i) => (
-                    <div className="photo-thumb" key={i} onClick={() => setActiveImg(i)}>
-                      <img src={`${IMG_BASE}${img}`} alt={`${spot.name} ${i + 1}`} />
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-
             {/* MAP */}
             {spot.lat && spot.lng && (
               <>
@@ -525,6 +541,18 @@ L.marker([${spot.lat},${spot.lng}],{icon:icon}).addTo(map).bindPopup('<b>${spot.
               </>
             )}
 
+            {/* CITY HUB LINK */}
+            {city && (
+              <div style={{ marginBottom: 32 }}>
+                <Link
+                  href={`/spots/${city.key}`}
+                  style={{ display:"inline-flex", alignItems:"center", gap:8, color:"#F5C842", fontFamily:"var(--mono)", fontSize:".65rem", letterSpacing:".08em", textTransform:"uppercase", textDecoration:"none" }}
+                >
+                  ← All Calisthenics Parks in {city.name}
+                </Link>
+              </div>
+            )}
+
             {/* CTA */}
             <div className="cta">
               <div className="cta-eyb">Download now</div>
@@ -537,16 +565,6 @@ L.marker([${spot.lat},${spot.lng}],{icon:icon}).addTo(map).bindPopup('<b>${spot.
 
           </div>
         </>
-      )}
-
-      {/* FULLSCREEN IMAGE */}
-      {activeImg !== null && spot && (
-        <div className="overlay" onClick={() => setActiveImg(null)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-          <button className="overlay-close" onClick={e => { e.stopPropagation(); setActiveImg(null); }}>✕</button>
-          <button className="overlay-arrow" style={{ left:0 }} onClick={e => { e.stopPropagation(); setActiveImg(p => p === 0 ? spot.images.length-1 : p-1); }}>‹</button>
-          <img src={`${IMG_BASE}${spot.images[activeImg]}`} alt="" onClick={e => e.stopPropagation()} />
-          <button className="overlay-arrow" style={{ right:0 }} onClick={e => { e.stopPropagation(); setActiveImg(p => p === spot.images.length-1 ? 0 : p+1); }}>›</button>
-        </div>
       )}
 
       <footer>
