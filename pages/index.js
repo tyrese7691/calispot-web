@@ -202,7 +202,7 @@ export default function Home() {
         /* ── BOTTOM CTA ────────────────────────────────────────────────── */
         .cta{position:relative;overflow:hidden;background:var(--y);border-radius:28px;padding:64px 48px;text-align:center;margin:0 48px 80px}
         .cta-eyb{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,0,0,.45);margin-bottom:14px}
-        .cta h2{font-size:clamp(2.4rem,7vw,5rem);font-weight:900;letter-spacing:-.04em;line-height:.9;color:#0a0a0a;margin-bottom:16px}
+        .cta h2{font-family:var(--display);font-size:clamp(2.4rem,7vw,5rem);font-weight:900;letter-spacing:-.04em;line-height:.9;color:#0a0a0a;margin-bottom:16px}
         .cta p{font-size:.92rem;color:rgba(0,0,0,.5);margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6}
         .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
         .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#0a0a0a;color:var(--y);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1rem 2.2rem;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s}
@@ -367,13 +367,13 @@ export default function Home() {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
-<style>html,body,#m{margin:0;width:100%;height:100%}</style>
+<style>html,body,#m{margin:0;width:100%;height:100%;background:#0a0a0a}.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) saturate(.25) brightness(.75) contrast(1.15)}.leaflet-control-attribution{background:rgba(10,10,10,.75)!important;color:rgba(255,255,255,.35)!important;font-size:9px}.leaflet-control-attribution a{color:rgba(255,255,255,.5)!important}</style>
 </head><body>
 <div id="m"></div>
 <script>
 var spots=${JSON.stringify(filtered.filter(s=>s.lat&&s.lng).map(s=>({lat:s.lat,lng:s.lng,name:s.name,slug:s.slug,station:s.nearestTrainStation||""})))};
-var map=L.map('m',{zoomControl:true,attributionControl:false});
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+var map=L.map('m',{zoomControl:true,attributionControl:true});
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>'}).addTo(map);
 var icon=L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#F5C842;border:2px solid #0a0a0a;border-radius:50%;box-shadow:0 0 8px rgba(245,200,66,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]});
 var bounds=[];
 spots.forEach(function(s){
