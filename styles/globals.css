@@ -1,3 +1,18 @@
+/* Horizon — the CaliSpot display font. Caps-only, so it's applied to
+   headings site-wide; body text stays in the readable sans stack. */
+@font-face {
+  font-family: 'Horizon';
+  src: url('/fonts/Horizon.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+h1, h2, h3 {
+  font-family: 'Horizon', 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
 html,
 body {
   padding: 0;
