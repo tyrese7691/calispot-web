@@ -330,12 +330,12 @@ export default function EventPage() {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
-<style>html,body,#m{margin:0;width:100%;height:100%}</style>
+<style>html,body,#m{margin:0;width:100%;height:100%;background:#0a0a0a}.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) saturate(.25) brightness(.75) contrast(1.15)}.leaflet-control-attribution{background:rgba(10,10,10,.75)!important;color:rgba(255,255,255,.35)!important;font-size:9px}.leaflet-control-attribution a{color:rgba(255,255,255,.5)!important}</style>
 </head><body>
 <div id="m"></div>
 <script>
-var map=L.map('m',{zoomControl:true,attributionControl:false}).setView([${spotCoords.lat},${spotCoords.lng}],15);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+var map=L.map('m',{zoomControl:true,attributionControl:true}).setView([${spotCoords.lat},${spotCoords.lng}],15);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>'}).addTo(map);
 var icon=L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#F5C842;border:2px solid #0a0a0a;border-radius:50%;box-shadow:0 0 8px rgba(245,200,66,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]});
 L.marker([${spotCoords.lat},${spotCoords.lng}],{icon:icon}).addTo(map).bindPopup('<b>${(spotCoords.name || "").replace(/'/g, "\\\\'")}</b>');
 <\/script>
