@@ -524,7 +524,7 @@ else map.setView([51.505,-0.09],6);
           Download on Android
         </a>
         </div>
-        <div className="cta-sub">Free forever · No ads · iOS & Android</div>
+        <div className="cta-sub">Free forever · iOS & Android</div>
       </div>
 
       {/* ═══════════════════════ BROWSE BY CITY (SEO) ══════════════════════ */}

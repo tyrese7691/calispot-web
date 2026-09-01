@@ -311,7 +311,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{max
               Download on Android
             </a>
           </div>
-          <div className="cta-sub">Free forever · No ads · iOS & Android</div>
+          <div className="cta-sub">Free forever · iOS & Android</div>
         </div>
 
         {/* Other cities — internal links so every city page is crawlable from every other */}
