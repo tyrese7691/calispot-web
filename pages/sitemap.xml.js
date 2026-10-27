@@ -10,7 +10,7 @@ const CITIES = [
   "brighton", "edinburgh", "glasgow", "cardiff", "nottingham", "sheffield",
 ];
 
-const STATIC_PAGES = ["", "/privacy", "/terms"];
+const STATIC_PAGES = ["", "/getting-started", "/privacy", "/terms"];
 
 function url(loc, priority = "0.7", changefreq = "weekly") {
   return `  <url>

@@ -555,6 +555,7 @@ else map.setView([51.505,-0.09],6);
       {/* ═══════════════════════ FOOTER ════════════════════════════════════ */}
       <footer>
         <div className="f-links">
+          <Link href="/getting-started">Getting Started</Link>
           <Link href="/privacy">Privacy Policy</Link>
           <a href="mailto:support@calispot.xyz">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
