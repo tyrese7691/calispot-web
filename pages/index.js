@@ -137,6 +137,9 @@ export default function Home() {
         .hero-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,200,66,.35)}
         .hero-btn-sec{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid var(--bd);color:var(--w);font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.95rem 2rem;border-radius:50px;text-decoration:none;transition:all .2s;cursor:pointer}
         .hero-btn-sec:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15)}
+        .hero-guide{margin-top:18px;font-size:.9rem;color:var(--wm);position:relative;text-align:center}
+        .hero-guide a{color:var(--g);text-decoration:underline;text-underline-offset:3px;transition:color .2s}
+        .hero-guide a:hover{color:var(--y)}
         .hero-stats{display:flex;gap:32px;margin-top:48px;position:relative;justify-content:center}
         .hero-stat-num{font-size:2.4rem;font-weight:900;letter-spacing:-.03em;color:var(--y);line-height:1}
         .hero-stat-label{font-family:var(--mono);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--wm);margin-top:4px}
@@ -311,6 +314,9 @@ export default function Home() {
             Browse Spots
           </button>
         </div>
+        <p className="hero-guide fu4">
+          New to CaliSpot? <Link href="/getting-started">Read the getting started guide</Link>
+        </p>
         {!loading && (
           <div className="hero-stats fu4">
             <div>
