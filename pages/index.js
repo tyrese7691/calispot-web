@@ -28,6 +28,12 @@ export default function Home() {
   const [view, setView]             = useState("map"); // "map" | "list"
   const [searchQ, setSearchQ]       = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
+  // Christmas competition banner — hides itself after entries close
+  // (24 Dec 2026, 23:59 GMT). Set in an effect so SSR and client agree.
+  const [compLive, setCompLive]     = useState(false);
+  useEffect(() => {
+    setCompLive(Date.now() < Date.UTC(2026, 11, 24, 23, 59, 0));
+  }, []);
 
   /* ── Fetch spots ─────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -127,6 +133,13 @@ export default function Home() {
         .hero{position:relative;padding:100px 48px 80px;overflow:hidden;min-height:min(85vh,700px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
         .hero-glow{position:absolute;top:-40%;left:-10%;width:60%;height:120%;background:radial-gradient(ellipse at center,rgba(245,200,66,.06) 0%,transparent 70%);pointer-events:none}
         .hero-glow2{position:absolute;bottom:-30%;right:-10%;width:50%;height:100%;background:radial-gradient(ellipse at center,rgba(61,255,143,.03) 0%,transparent 70%);pointer-events:none}
+        .comp-banner{position:relative;display:inline-flex;align-items:center;gap:10px;margin-bottom:24px;padding:.6rem 1.1rem .6rem 1.25rem;border-radius:50px;background:linear-gradient(90deg,rgba(245,200,66,.16),rgba(245,200,66,.07));border:1px solid rgba(245,200,66,.42);color:#fff;font-size:.78rem;font-weight:700;text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s;animation:compPulse 3.4s ease-in-out infinite}
+        .comp-banner:hover{transform:translateY(-2px);border-color:var(--y);box-shadow:0 10px 34px rgba(245,200,66,.26)}
+        .comp-banner .cb-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#0a0a0a;background:var(--y);padding:.25rem .55rem;border-radius:50px;font-weight:800}
+        .comp-banner .cb-arrow{transition:transform .2s;color:var(--y)}
+        .comp-banner:hover .cb-arrow{transform:translateX(3px)}
+        @keyframes compPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,200,66,0)}50%{box-shadow:0 0 26px 0 rgba(245,200,66,.16)}}
+        @media (prefers-reduced-motion:reduce){.comp-banner{animation:none}}
         .hero-eyb{font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--y);margin-bottom:20px;display:flex;align-items:center;gap:10px;position:relative;justify-content:center}
         .hero-eyb::before{content:'';width:28px;height:1px;background:var(--y);flex-shrink:0}
         .hero-title{font-family:var(--display);font-size:clamp(1.8rem,6vw,4rem);font-weight:900;line-height:.88;letter-spacing:-.04em;color:#fff;margin-bottom:20px;position:relative;max-width:100%;text-align:center;white-space:nowrap;margin-left:auto;margin-right:auto}
@@ -292,6 +305,15 @@ export default function Home() {
       <section className="hero">
         <div className="hero-glow" />
         <div className="hero-glow2" />
+        {compLive && (
+          <Link href="/competition" className="comp-banner fu">
+            <span className="cb-tag">New</span>
+            <span>£200 Christmas Competition &mdash; four winners</span>
+            <svg className="cb-arrow" width={14} height={14} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M4 13h12.17l-5.59 5.59L12 20l8-8-8-8-1.41 1.41L16.17 11H4v2z" />
+            </svg>
+          </Link>
+        )}
         <div className="hero-eyb fu">Outdoor calisthenics, mapped</div>
         <h1 className="hero-title fu2">
           Find your <span className="accent">spot</span><br />
@@ -562,6 +584,7 @@ else map.setView([51.505,-0.09],6);
       <footer>
         <div className="f-links">
           <Link href="/getting-started">Getting Started</Link>
+          <Link href="/competition">Competition</Link>
           <Link href="/privacy">Privacy Policy</Link>
           <a href="mailto:support@calispot.xyz">Contact</a>
           <a href={APP_STORE} target="_blank" rel="noreferrer">App Store</a>
